@@ -1,0 +1,914 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1020">
+
+    <title>Lecture Notes | Smart Lecture AI</title>
+
+    <style>
+        :root {
+            --bg: #0b1020;
+            --sidebar: #0e1427;
+            --panel: #111a30;
+            --panel-hover: #16213a;
+            --border: rgba(148, 163, 184, .15);
+            --text: #f1f5ff;
+            --muted: #94a3b8;
+            --blue: #818cf8;
+            --blue-strong: #6366f1;
+            --cyan: #67e8f9;
+            --green: #6ee7b7;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(ellipse at 80% 0%, rgba(99, 102, 241, .12), transparent 35%),
+                var(--bg);
+            color: var(--text);
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         Roboto, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        button:focus-visible,
+        a:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: 3px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        /* TOP NAVIGATION */
+
+        .topbar {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 18px clamp(18px, 5vw, 70px);
+            border-bottom: 1px solid var(--border);
+            background: rgba(14, 20, 39, .9);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #818cf8, #6366f1);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, .22);
+            font-size: 22px;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.4;
+            letter-spacing: -.3px;
+        }
+
+        .brand p {
+            margin: 3px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .header-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 39px;
+            padding: 9px 13px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: #cbd5e1;
+            font-size: 12px;
+            transition: .2s ease;
+        }
+
+        .header-link:hover {
+            border-color: rgba(129, 140, 248, .45);
+            background: rgba(99, 102, 241, .1);
+            color: white;
+        }
+
+        .header-link.primary {
+            border-color: transparent;
+            background: linear-gradient(135deg, #818cf8, #6366f1);
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+
+        main {
+            width: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 36px 28px 50px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-bottom: 20px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .breadcrumb a {
+            color: #a5b4fc;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--cyan);
+        }
+
+        .page-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 27px;
+        }
+
+        .eyebrow {
+            margin: 0 0 7px;
+            color: var(--blue);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.7px;
+        }
+
+        .page-heading h2 {
+            margin: 0;
+            font-size: clamp(26px, 3vw, 34px);
+            letter-spacing: -1px;
+            line-height: 1.3;
+        }
+
+        .page-heading h2 span {
+            color: #a5b4fc;
+        }
+
+        .page-heading p {
+            max-width: 600px;
+            margin: 9px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .library-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            padding: 9px 12px;
+            border: 1px solid rgba(110, 231, 183, .18);
+            border-radius: 25px;
+            background: rgba(16, 185, 129, .08);
+            color: #a7f3d0;
+            font-size: 11px;
+        }
+
+        .library-badge span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+
+        /* SEARCH PANEL */
+
+        .toolbar {
+            padding: 23px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            background: linear-gradient(145deg, rgba(20, 30, 53, .95), rgba(15, 23, 42, .95));
+        }
+
+        .toolbar-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+            margin-bottom: 20px;
+        }
+
+        .toolbar-icon {
+            width: 43px;
+            height: 43px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(129, 140, 248, .2);
+            border-radius: 12px;
+            background: rgba(99, 102, 241, .12);
+            font-size: 20px;
+        }
+
+        .toolbar-heading h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .toolbar-heading p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(190px, 1fr);
+            gap: 12px;
+        }
+
+        .field {
+            min-width: 0;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        input, select {
+            width: 100%;
+            min-height: 46px;
+            padding: 11px 13px;
+            border: 1px solid #293650;
+            border-radius: 10px;
+            background: #0c1325;
+            color: var(--text);
+            outline: none;
+            font-size: 13px;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        input::placeholder {
+            color: #718096;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .12);
+        }
+
+        select option {
+            background: #111a30;
+            color: var(--text);
+        }
+
+        .toolbar-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        #resultCount {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        #resultCount strong {
+            color: #c7d2fe;
+        }
+
+        .clear-button {
+            min-height: 38px;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: rgba(148, 163, 184, .06);
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 12px;
+            transition: .2s ease;
+        }
+
+        .clear-button:hover {
+            border-color: rgba(129, 140, 248, .4);
+            background: rgba(99, 102, 241, .1);
+            color: white;
+        }
+
+        /* NOTE CARDS */
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 17px;
+        }
+
+        .note {
+            min-width: 0;
+            padding: 22px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: rgba(17, 26, 48, .88);
+            transition: transform .2s, border-color .2s, background .2s;
+        }
+
+        .note:hover {
+            transform: translateY(-2px);
+            border-color: rgba(129, 140, 248, .35);
+            background: #121d34;
+        }
+
+        .note-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .note-icon {
+            width: 41px;
+            height: 41px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(129, 140, 248, .17);
+            border-radius: 12px;
+            background: rgba(99, 102, 241, .11);
+            font-size: 19px;
+        }
+
+        .subject {
+            display: inline-flex;
+            align-items: center;
+            max-width: 100%;
+            padding: 5px 9px;
+            border: 1px solid rgba(129, 140, 248, .2);
+            border-radius: 30px;
+            background: rgba(99, 102, 241, .1);
+            color: #c7d2fe;
+            font-size: 10px;
+            font-weight: 750;
+            overflow-wrap: anywhere;
+        }
+
+        .note h3 {
+            margin: 0 0 9px;
+            color: #f1f5ff;
+            font-size: 16px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .date {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin: 0 0 16px;
+            color: #8492aa;
+            font-size: 11px;
+        }
+
+        .note-divider {
+            height: 1px;
+            margin: 0 0 16px;
+            border: 0;
+            background: var(--border);
+        }
+
+        .content {
+            color: #cbd5e1;
+            font-size: 12px;
+            line-height: 1.9;
+            overflow-wrap: anywhere;
+        }
+
+        .content h1,
+        .content h2,
+        .content h3,
+        .content h4 {
+            margin: 17px 0 9px;
+            color: #f1f5ff;
+            line-height: 1.5;
+        }
+
+        .content h1 { font-size: 19px; }
+        .content h2 { font-size: 17px; }
+        .content h3 { font-size: 15px; }
+        .content h4 { font-size: 13px; }
+
+        .content p {
+            margin: 0 0 12px;
+        }
+
+        .content ul,
+        .content ol {
+            padding-left: 22px;
+        }
+
+        .content li {
+            margin-bottom: 5px;
+        }
+
+        .content strong {
+            color: #e2e8f0;
+        }
+
+        .content a {
+            color: #a5b4fc;
+            text-decoration: underline;
+            overflow-wrap: anywhere;
+        }
+
+        .content blockquote {
+            margin: 14px 0;
+            padding: 10px 14px;
+            border-left: 3px solid var(--blue);
+            border-radius: 0 8px 8px 0;
+            background: rgba(99, 102, 241, .08);
+        }
+
+        .content pre {
+            max-width: 100%;
+            overflow-x: auto;
+            padding: 13px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: #090f1d;
+        }
+
+        .content code {
+            font-family: Consolas, Monaco, monospace;
+            font-size: .92em;
+        }
+
+        .content table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            border-collapse: collapse;
+        }
+
+        .content th,
+        .content td {
+            padding: 9px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .content th {
+            background: rgba(99, 102, 241, .12);
+        }
+
+        /* EMPTY STATES */
+
+        .empty {
+            padding: 45px 22px;
+            border: 1px dashed #35415c;
+            border-radius: 16px;
+            background: rgba(17, 26, 48, .6);
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 58px;
+            height: 58px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 15px;
+            border-radius: 17px;
+            background: rgba(99, 102, 241, .12);
+            font-size: 26px;
+        }
+
+        .empty h3 {
+            margin: 0 0 8px;
+            color: #e2e8f0;
+            font-size: 17px;
+        }
+
+        .empty p {
+            margin: 0 0 17px;
+            font-size: 12px;
+        }
+
+        .empty-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 9px 14px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #818cf8, #6366f1);
+            color: white;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .empty-link:hover {
+            filter: brightness(1.1);
+        }
+
+        /* BOTTOM ACTIONS */
+
+        .bottom-actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 27px;
+        }
+
+        .action-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 41px;
+            padding: 10px 13px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: rgba(17, 26, 48, .75);
+            color: #cbd5e1;
+            font-size: 12px;
+            transition: .2s ease;
+        }
+
+        .action-link:hover {
+            border-color: rgba(129, 140, 248, .4);
+            background: rgba(99, 102, 241, .1);
+            color: white;
+        }
+
+        .action-link.primary {
+            border-color: transparent;
+            background: linear-gradient(135deg, #818cf8, #6366f1);
+            color: white;
+        }
+
+        footer {
+            margin-top: 35px;
+            padding: 20px 0 0;
+            border-top: 1px solid var(--border);
+            color: #64748b;
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.9;
+        }
+
+        footer strong {
+            color: #a5b4fc;
+        }
+
+        @media (max-width: 850px) {
+            main {
+                padding: 28px 20px 40px;
+            }
+
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-link {
+                flex: 1;
+            }
+
+            main {
+                padding: 23px 14px 35px;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                padding: 17px;
+            }
+
+            .note {
+                padding: 18px;
+            }
+
+            .toolbar-bottom {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .clear-button {
+                width: 100%;
+            }
+
+            .bottom-actions {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .action-link {
+                width: 100%;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *, *::before, *::after {
+                transition-duration: .01ms !important;
+                animation-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+
+<header class="topbar">
+    <a href="/" class="brand">
+        <div class="brand-icon">📚</div>
+        <div>
+            <h1>Smart Lecture AI</h1>
+            <p>Your intelligent study space</p>
+        </div>
+    </a>
+
+    <nav class="header-actions" aria-label="Quick navigation">
+        <a class="header-link" href="/">← Dashboard</a>
+        <a class="header-link primary" href="/add-lecture">＋ Add Lecture</a>
+    </nav>
+</header>
+
+<main>
+    <div class="breadcrumb">
+        <a href="/">Dashboard</a>
+        <span>/</span>
+        <span>My Lecture Notes</span>
+    </div>
+
+    <section class="page-heading">
+        <div>
+            <p class="eyebrow">YOUR PERSONAL KNOWLEDGE LIBRARY</p>
+            <h2>My lecture <span>notes.</span></h2>
+            <p>
+                All your saved lectures in one place. Search, filter, and
+                revisit important concepts whenever you need them.
+            </p>
+        </div>
+
+        <div class="library-badge">
+            <span></span>
+            Your notes library
+        </div>
+    </section>
+
+    <!-- SEARCH AND FILTERS -->
+    <section class="toolbar">
+        <div class="toolbar-heading">
+            <div class="toolbar-icon">⌕</div>
+            <div>
+                <h3>Find your lecture</h3>
+                <p>Search by lecture title, subject, or content.</p>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="field">
+                <label for="searchInput">Search lectures</label>
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search your notes..."
+                    aria-label="Search lecture titles, subjects, and content"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="field">
+                <label for="subjectFilter">Filter by subject</label>
+                <select id="subjectFilter" aria-label="Filter by subject">
+                    <option value="">All subjects</option>
+
+                    {% for subject in all_notes | map(attribute='subject') | unique | sort %}
+                    <option value="{{ subject }}">{{ subject }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="toolbar-bottom">
+            <p id="resultCount" aria-live="polite">Loading lectures...</p>
+
+            <button class="clear-button" id="clearFilters" type="button">
+                ↺ Clear filters
+            </button>
+        </div>
+    </section>
+
+    <!-- NOTES -->
+    <section id="notesContainer" aria-label="Saved lecture notes">
+        <div class="notes-grid" id="notesGrid">
+
+            {% for note in all_notes %}
+            <article class="note">
+                <div class="note-top">
+                    <div class="note-icon" aria-hidden="true">▤</div>
+
+                    <span class="subject">
+                        {{ note['subject'] or 'General' }}
+                    </span>
+                </div>
+
+                <h3>{{ note['title'] }}</h3>
+
+                <p class="date">
+                    <span aria-hidden="true">◷</span>
+                    <span>{{ note.date }}</span>
+                </p>
+
+                <hr class="note-divider">
+
+                <div class="content">{{ note.formatted_content | safe }}</div>
+            </article>
+
+            {% else %}
+            <div class="empty" id="noNotes" style="grid-column: 1 / -1;">
+                <div class="empty-icon">📚</div>
+                <h3>Your library is waiting</h3>
+                <p>You haven't saved any lectures yet. Create your first lecture to get started.</p>
+                <a class="empty-link" href="/add-lecture">＋ Create your first lecture</a>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <div class="empty" id="noResults" hidden>
+            <div class="empty-icon">⌕</div>
+            <h3>No matching lectures</h3>
+            <p>Try a different search term or select another subject.</p>
+            <button class="clear-button" id="clearEmptyFilters" type="button">
+                Clear search and filters
+            </button>
+        </div>
+    </section>
+
+    <!-- QUICK ACTIONS -->
+    <nav class="bottom-actions" aria-label="Lecture actions">
+        <a class="action-link primary" href="/add-lecture">
+            ＋ Add another lecture
+        </a>
+
+        <a class="action-link" href="/generate-notes">
+            ✦ Generate AI notes
+        </a>
+
+        <a class="action-link" href="/upload-audio">
+            ♫ Upload lecture audio
+        </a>
+
+        <a class="action-link" href="/">
+            ← Back to dashboard
+        </a>
+    </nav>
+
+    <footer>
+        <strong>Smart Lecture AI</strong><br>
+        Your knowledge, organized. Your learning, simplified.
+    </footer>
+</main>
+
+<script>
+(function () {
+    "use strict";
+
+    const searchInput = document.getElementById("searchInput");
+    const subjectFilter = document.getElementById("subjectFilter");
+    const clearFilters = document.getElementById("clearFilters");
+    const clearEmptyFilters = document.getElementById("clearEmptyFilters");
+    const notes = Array.from(document.querySelectorAll(".note"));
+    const resultCount = document.getElementById("resultCount");
+    const noResults = document.getElementById("noResults");
+
+    function filterNotes() {
+        const searchText = searchInput.value.trim().toLocaleLowerCase();
+        const selectedSubject = subjectFilter.value.trim().toLocaleLowerCase();
+
+        let visibleCount = 0;
+
+        notes.forEach(function (note) {
+            const text = note.textContent.toLocaleLowerCase();
+            const subjectElement = note.querySelector(".subject");
+
+            const subject = subjectElement
+                ? subjectElement.textContent.trim().toLocaleLowerCase()
+                : "";
+
+            const matchesSearch = text.includes(searchText);
+
+            const matchesSubject =
+                selectedSubject === "" || subject === selectedSubject;
+
+            const visible = matchesSearch && matchesSubject;
+
+            note.hidden = !visible;
+
+            if (visible) {
+                visibleCount++;
+            }
+        });
+
+        const lectureWord = visibleCount === 1 ? "lecture" : "lectures";
+
+        resultCount.textContent =
+            visibleCount + " " + lectureWord + " found";
+
+        noResults.hidden = visibleCount !== 0 || notes.length === 0;
+    }
+
+    function resetFilters() {
+        searchInput.value = "";
+        subjectFilter.value = "";
+        filterNotes();
+        searchInput.focus();
+    }
+
+    searchInput.addEventListener("input", filterNotes);
+    subjectFilter.addEventListener("change", filterNotes);
+    clearFilters.addEventListener("click", resetFilters);
+
+    if (clearEmptyFilters) {
+        clearEmptyFilters.addEventListener("click", resetFilters);
+    }
+
+    filterNotes();
+})();
+</script>
+
+</body>
+</html>

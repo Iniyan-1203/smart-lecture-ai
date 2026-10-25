@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
+    <title>Study Community | Smart Lecture AI</title>
+</head>
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+<div class="app-frame">
+    <nav class="app-nav" aria-label="Primary navigation">
+        <a class="app-brand" href="{{ url_for('home') }}">
+            <span class="app-brand-mark" aria-hidden="true">📚</span>
+            <span><strong>Smart Lecture AI</strong><small>Personal student workspace</small></span>
+        </a>
+        <div class="app-nav-links">
+            <a href="{{ url_for('home') }}">Dashboard</a>
+            <a class="app-button-primary" href="{{ url_for('community') }}">Community</a>
+            <a href="{{ url_for('notifications') }}">◷ Alerts</a>
+            <a href="{{ url_for('settings') }}">⚙ Settings</a>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">STUDY COMMUNITY</p>
+            <h1>Learn better together.</h1>
+            <p>Make friends with fellow students, share encouragement, and chat privately after you connect.</p>
+        </div>
+    </header>
+
+    {% if error %}<div class="app-alert" role="alert">{{ error }}</div>{% endif %}
+    {% if notice %}<div class="app-success" role="status">{{ notice }}</div>{% endif %}
+
+    <main class="community-page-grid">
+        <section class="app-panel">
+            <div class="settings-section-heading">
+                <div class="settings-section-icon">✦</div>
+                <div>
+                    <h2>Find students</h2>
+                    <p>Search by username or name, or optionally find classmates from your contacts.</p>
+                </div>
+            </div>
+            <form class="community-search" method="GET" action="{{ url_for('community') }}">
+                <input name="q" value="{{ query }}" placeholder="Search @username or student name" aria-label="Search students">
+                <button class="app-button app-button-primary app-button-small" type="submit">Search</button>
+            </form>
+            <div class="contact-discovery">
+                <button class="app-button app-button-small" type="button" id="findContactsButton">Find from contacts</button>
+                <span id="contactDiscoveryStatus" class="community-status">Only shared contact emails are checked.</span>
+            </div>
+
+            <div class="student-list">
+                {% for student in students %}
+                    <article class="student-card">
+                        <div class="community-avatar">
+                            {% if student['profile_picture'] and student['profile_picture'].startswith('preset:') %}
+                                {% for value, icon, label in profile_avatar_options %}
+                                    {% if student['profile_picture'] == value %}{{ icon }}{% endif %}
+                                {% endfor %}
+                            {% elif student['profile_picture'] %}
+                                <img src="{{ url_for('profile_picture', filename=student['profile_picture']) }}" alt="">
+                            {% else %}
+                                {{ student['name'][0]|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="student-card-copy">
+                            <strong>{{ student['name'] }}</strong>
+                            <small>@{{ student['username'] or 'student' }}</small>
+                        </div>
+                        {% if student['friendship_status'] == 'friends' %}
+                            <a class="app-button app-button-small" href="{{ url_for('chat', user_id=student['id']) }}">Chat</a>
+                        {% elif student['friendship_status'] == 'outgoing' %}
+                            <span class="community-status">Request sent</span>
+                        {% elif student['friendship_status'] == 'incoming' %}
+                            <span class="community-status">Respond below</span>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('send_friend_request', user_id=student['id']) }}">
+            {{ csrf_field() }}
+                                <button class="app-button app-button-primary app-button-small" type="submit">Add friend</button>
+                            </form>
+                        {% endif %}
+                    </article>
+                {% else %}
+                    <div class="app-note">No other student accounts are available yet. Invite a classmate to register.</div>
+                {% endfor %}
+            </div>
+
+            <div class="community-divider"></div>
+
+            <div class="settings-section-heading compact">
+                <div class="settings-section-icon">▦</div>
+                <div>
+                    <h2>Study groups</h2>
+                    <p>Join a focused group for a subject, project, or exam.</p>
+                </div>
+            </div>
+
+            <div class="group-list">
+                {% for group in groups %}
+                    <article class="group-card">
+                        <div class="group-card-copy">
+                            <strong>{{ group['name'] }}</strong>
+                            <p>{{ group['description'] or 'A focused space for students to learn together.' }}</p>
+                            <small>{{ group['member_count'] }} member{% if group['member_count'] != 1 %}s{% endif %} · Created by {{ group['owner_name'] }}</small>
+                        </div>
+                        {% if group['is_member'] %}
+                            <div class="group-card-actions">
+                                <a class="app-button app-button-primary app-button-small" href="{{ url_for('group_chat', group_id=group['id']) }}">Open chat</a>
+                                <form method="POST" action="{{ url_for('update_group_membership', group_id=group['id'], action='leave') }}">
+            {{ csrf_field() }}
+                                    <button class="app-button app-button-small" type="submit">Leave</button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('update_group_membership', group_id=group['id'], action='join') }}">
+            {{ csrf_field() }}
+                                <button class="app-button app-button-primary app-button-small" type="submit">Join group</button>
+                            </form>
+                        {% endif %}
+                    </article>
+                {% else %}
+                    <div class="app-note">No study groups yet. Create the first one for your class.</div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <aside class="community-side">
+            <section class="app-panel">
+                <div class="settings-section-heading compact">
+                    <div class="settings-section-icon">＋</div>
+                    <div>
+                        <h2>Create a group</h2>
+                        <p>Start a space around a subject or shared goal.</p>
+                    </div>
+                </div>
+                <form class="app-form" method="POST" action="{{ url_for('create_group') }}">
+            {{ csrf_field() }}
+                    <label for="group-name">Group name
+                        <input id="group-name" name="name" type="text" maxlength="80" placeholder="ECE Exam Prep" required>
+                    </label>
+                    <label for="group-description">Short description
+                        <textarea id="group-description" name="description" rows="3" maxlength="240" placeholder="Share revision plans and questions."></textarea>
+                    </label>
+                    <button class="app-button app-button-primary" type="submit">Create study group</button>
+                </form>
+            </section>
+
+            <section class="app-panel">
+                <div class="settings-section-heading compact">
+                    <div class="settings-section-icon">♡</div>
+                    <div>
+                        <h2>Friend requests</h2>
+                        <p>Accept requests from your classmates.</p>
+                    </div>
+                </div>
+                {% for request in incoming_requests %}
+                    <div class="request-row">
+                        <div>
+                            <strong>{{ request['name'] }}</strong>
+                            <small>Wants to study with you</small>
+                        </div>
+                        <div class="request-actions">
+                            <form method="POST" action="{{ url_for('handle_friend_request', friendship_id=request['id'], action='accept') }}">
+            {{ csrf_field() }}
+                                <button class="app-button app-button-primary app-button-small" type="submit">Accept</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('handle_friend_request', friendship_id=request['id'], action='decline') }}">
+            {{ csrf_field() }}
+                                <button class="app-button app-button-small" type="submit">Decline</button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="empty-state">No pending requests.</p>
+                {% endfor %}
+            </section>
+
+            <section class="app-panel">
+                <div class="settings-section-heading compact">
+                    <div class="settings-section-icon">☵</div>
+                    <div>
+                        <h2>Your friends</h2>
+                        <p>Private chats with your study circle.</p>
+                    </div>
+                </div>
+                {% for friend in friends %}
+                    <a class="friend-row" href="{{ url_for('chat', user_id=friend['id']) }}">
+                        <span class="community-avatar small">{{ friend['name'][0]|upper }}</span>
+                        <span><strong>{{ friend['name'] }}</strong><small>Open private chat ↗</small></span>
+                    </a>
+                {% else %}
+                    <p class="empty-state">Your accepted friends will appear here.</p>
+                {% endfor %}
+            </section>
+        </aside>
+    </main>
+</div>
+<script>
+const findContactsButton = document.getElementById("findContactsButton");
+const contactDiscoveryStatus = document.getElementById("contactDiscoveryStatus");
+if (findContactsButton) {
+    findContactsButton.addEventListener("click", async function () {
+        if (!("contacts" in navigator) || !("ContactsManager" in window)) {
+            contactDiscoveryStatus.textContent = "Contact access is not supported here. Search by username instead.";
+            return;
+        }
+        try {
+            const contacts = await navigator.contacts.select(["email"], { multiple: true });
+            const emails = contacts.flatMap(contact => contact.email || []);
+            const response = await fetch("{{ url_for('contact_discovery') }}", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({contacts: emails})
+            });
+            const result = await response.json();
+            contactDiscoveryStatus.textContent = result.matches && result.matches.length
+                ? `${result.matches.length} matching classmate account(s) found. Refresh to see them.`
+                : "No matching classmates found.";
+        } catch (error) {
+            contactDiscoveryStatus.textContent = "Contact access was cancelled.";
+        }
+    });
+}
+</script>
+</body>
+</html>

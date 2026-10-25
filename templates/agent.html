@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
+    <title>AI assistant | Smart Lecture AI</title>
+</head>
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+<div class="app-frame">
+    <nav class="app-nav" aria-label="Primary navigation">
+        <a class="app-brand" href="{{ url_for('home') }}">
+            <span class="app-brand-mark" aria-hidden="true">✦</span>
+            <span><strong>Smart Lecture AI</strong><small>Ask, understand, remember</small></span>
+        </a>
+        <div class="app-nav-links">
+            <a href="{{ url_for('home') }}">Dashboard</a>
+            <a href="{{ url_for('notes') }}">My notes</a>
+            <a href="{{ url_for('upload_audio') }}">Upload audio</a>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">Workspace / assistant</p>
+            <h1>Ask your lecture library.</h1>
+            <p>Get clear explanations grounded in your saved lectures, with source context included alongside each answer.</p>
+        </div>
+    </header>
+
+    <main class="app-panel">
+        <form class="app-form" action="{{ url_for('agent') }}" method="POST">
+            {{ csrf_field() }}
+            <label for="question">What would you like to understand?
+                <textarea id="question" name="question" placeholder="Example: Explain the difference between a diode and a transistor." required>{{ question }}</textarea>
+            </label>
+            <div class="app-actions">
+                <button class="app-button app-button-primary" type="submit">🤖 Ask AI assistant</button>
+                <a class="app-button" href="{{ url_for('notes') }}">Browse saved notes</a>
+            </div>
+        </form>
+
+        <div class="app-note"><strong>Try asking:</strong> What is the function of a diode? Explain how a capacitor works. Create revision questions from my lectures.</div>
+
+        {% if answer %}
+        <section class="app-answer" aria-live="polite">
+            <h2>💡 AI answer</h2>
+            <div class="app-answer-text">{{ answer }}</div>
+        </section>
+        {% endif %}
+
+        {% if sources %}
+        <section class="app-sources">
+            <h3>📚 Saved lectures used</h3>
+            {% for source in sources %}
+            <div class="app-source"><strong>{{ source.title }}</strong><br>Subject: {{ source.subject }}<br>Date: {{ source.date }}</div>
+            {% endfor %}
+        </section>
+        {% endif %}
+    </main>
+</div>
+</body>
+</html>

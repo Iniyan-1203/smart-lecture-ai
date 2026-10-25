@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <meta name="description" content="Sign in to Smart Lecture AI">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
+    <title>{{ "Create account" if mode == "register" else "Sign in" }} | Smart Lecture AI</title>
+</head>
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+<main class="auth-shell">
+    <section class="auth-intro">
+        <a class="app-brand" href="{{ url_for('login') }}">
+            <span class="app-brand-mark" aria-hidden="true">📚</span>
+            <span><strong>Smart Lecture AI</strong><small>Your bilingual learning workspace</small></span>
+        </a>
+        <p class="eyebrow">LEARN WITH YOUR LECTURES</p>
+        <h1>Turn classroom time into lasting understanding.</h1>
+        <p>Keep your lectures, bilingual notes, practice quizzes, and AI guidance together in one student workspace.</p>
+        <div class="auth-benefits">
+            <span>✓ Private learning space</span>
+            <span>✓ English + தமிழ் support</span>
+            <span>✓ Progress-ready dashboard</span>
+        </div>
+    </section>
+
+    <section class="auth-card" aria-labelledby="auth-title">
+        <p class="eyebrow">{{ "NEW ACCOUNT" if mode == "register" else "WELCOME BACK" }}</p>
+        <h2 id="auth-title">{{ "Create your Smart Lecture AI account" if mode == "register" else "Sign in to your workspace" }}</h2>
+        <p class="auth-subtitle">{{ "Start building your personal lecture library." if mode == "register" else "Continue learning from where you stopped." }}</p>
+
+        {% if error %}<div class="app-alert" role="alert">{{ error }}</div>{% endif %}
+
+        <form class="app-form" method="POST">
+            {{ csrf_field() }}
+            {% if mode == "register" %}
+            <label for="name">Full name
+                <input id="name" name="name" type="text" autocomplete="name" placeholder="Your name" required>
+            </label>
+            <label for="username">Username
+                <input id="username" name="username" type="text" autocomplete="username" pattern="[a-z0-9_]{3,24}" placeholder="e.g. arun_24" required>
+            </label>
+            <label for="role">Account type
+                <select id="role" name="role">
+                    <option value="student" selected>Student (recommended)</option>
+                    <option value="teacher">Teacher</option>
+                </select>
+            </label>
+            <label class="auth-check-row" for="contacts_enabled">
+                <input id="contacts_enabled" name="contacts_enabled" type="checkbox">
+                <span>Allow classmates who have my email to find me in Community</span>
+            </label>
+            {% endif %}
+            <label for="email">Email or username
+                <input id="email" name="email" type="text" autocomplete="username" placeholder="student@example.com or arun_24" required>
+            </label>
+            <label for="password">Password
+                <input id="password" name="password" type="password" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}" placeholder="At least 8 characters" required>
+            </label>
+            <button class="app-button app-button-primary" type="submit">{{ "Create account" if mode == "register" else "Sign in" }}</button>
+        </form>
+
+        <p class="auth-switch">
+            {% if mode == "register" %}
+            Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+            {% else %}
+            New to Smart Lecture AI? <a href="{{ url_for('register') }}">Create an account</a>
+            {% endif %}
+        </p>
+    </section>
+</main>
+</body>
+</html>

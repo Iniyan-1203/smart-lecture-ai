@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
+    <title>Add lecture | Smart Lecture AI</title>
+</head>
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+<div class="app-frame">
+    <nav class="app-nav" aria-label="Primary navigation">
+        <a class="app-brand" href="{{ url_for('home') }}">
+            <span class="app-brand-mark" aria-hidden="true">📚</span>
+            <span><strong>Smart Lecture AI</strong><small>Build your study library</small></span>
+        </a>
+        <div class="app-nav-links">
+            <a href="{{ url_for('home') }}">Dashboard</a>
+            <a href="{{ url_for('notes') }}">My notes</a>
+            <a href="{{ url_for('upload_audio') }}">Upload audio</a>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">My learning / new lecture</p>
+            <h1>Add your own lecture notes.</h1>
+            <p>Save a clean, searchable lecture entry for revision and AI-powered questions later.</p>
+        </div>
+    </header>
+
+    <main class="app-panel">
+        {% if error %}<div class="app-alert" role="alert">{{ error }}</div>{% endif %}
+        <form class="app-form" method="POST">
+            {{ csrf_field() }}
+            <label for="subject">Subject
+                <input id="subject" name="subject" placeholder="e.g. Basic Electronics" required>
+            </label>
+            <label for="title">Lecture title
+                <input id="title" name="title" placeholder="e.g. Semiconductor Diodes" required>
+            </label>
+            <label for="content">Lecture text
+                <textarea id="content" name="content" placeholder="Enter your lecture text here..." required></textarea>
+            </label>
+            <div class="app-actions">
+                <button class="app-button app-button-primary" type="submit">Save lecture</button>
+                <a class="app-button" href="{{ url_for('notes') }}">View my notes</a>
+            </div>
+        </form>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
+    <title>Chat with {{ other_user['name'] }} | Smart Lecture AI</title>
+</head>
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+<div class="app-frame">
+    <nav class="app-nav" aria-label="Primary navigation">
+        <a class="app-brand" href="{{ url_for('home') }}">
+            <span class="app-brand-mark" aria-hidden="true">📚</span>
+            <span><strong>Smart Lecture AI</strong><small>Personal student workspace</small></span>
+        </a>
+        <div class="app-nav-links">
+            <a href="{{ url_for('community') }}">← Community</a>
+            <a href="{{ url_for('settings') }}">⚙ Settings</a>
+        </div>
+    </nav>
+
+    <header class="page-header chat-header">
+        <div>
+            <p class="eyebrow">PRIVATE STUDY CHAT</p>
+            <h1>{{ other_user['name'] }}</h1>
+            <p>Share questions, encouragement, and revision plans with your friend.</p>
+        </div>
+    </header>
+
+    <main class="chat-panel app-panel">
+        <div class="chat-messages" aria-live="polite">
+            {% for message in messages %}
+                <div class="chat-message {% if message['sender_id'] == current_user['id'] %}chat-message-self{% endif %}">
+                    <p>{{ message['body'] }}</p>
+                    <small>{{ message['created_at'].replace('T', ' ') }}</small>
+                </div>
+            {% else %}
+                <div class="empty-state">Start the conversation with a kind study message.</div>
+            {% endfor %}
+        </div>
+        {% if error %}<div class="app-alert" role="alert">{{ error }}</div>{% endif %}
+        <form class="chat-form" method="POST">
+            {{ csrf_field() }}
+            <label class="sr-only" for="body">Message</label>
+            <textarea id="body" name="body" rows="2" maxlength="2000" placeholder="Write a message..." required></textarea>
+            <button class="app-button app-button-primary" type="submit">Send message</button>
+        </form>
+    </main>
+</div>
+</body>
+</html>

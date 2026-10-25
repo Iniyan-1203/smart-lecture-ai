@@ -1,0 +1,889 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1020">
+    <meta name="description" content="Smart Lecture AI turns lectures into notes, quizzes, and guided study sessions.">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <title>Smart Lecture AI | Learning Workspace</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a href="#dashboard" class="brand" aria-label="Smart Lecture AI dashboard">
+            <div class="brand-icon">📚</div>
+            <div>
+                <h2>Smart Lecture AI</h2>
+                <p>Your intelligent study space</p>
+            </div>
+        </a>
+
+        <nav aria-label="Main navigation">
+            <div class="nav-label">WORKSPACE</div>
+            <a href="#dashboard" class="nav-link active">
+                <span class="nav-icon">⌂</span> Dashboard
+            </a>
+            <a href="#study-room" class="nav-link">
+                <span class="nav-icon">◉</span> Study Room
+            </a>
+            <a href="#ai-agent" class="nav-link">
+                <span class="nav-icon">✧</span> AI Assistant
+            </a>
+            <a href="/community" class="nav-link">
+                <span class="nav-icon">♡</span> Study Community
+            </a>
+            <a href="/notifications" class="nav-link">
+                <span class="nav-icon">◷</span> Notifications
+                {% if unread_notification_count %}<span class="nav-count">{{ unread_notification_count }}</span>{% endif %}
+            </a>
+            <a href="/planner" class="nav-link">
+                <span class="nav-icon">◈</span> Exam Planner
+            </a>
+            <a href="/search" class="nav-link">
+                <span class="nav-icon">⌕</span> Search notes
+            </a>
+            <a href="/analytics" class="nav-link">
+                <span class="nav-icon">↗</span> Progress analytics
+            </a>
+            {% if current_user["role"] == "teacher" %}
+            <a href="/teacher" class="nav-link">
+                <span class="nav-icon">▦</span> Teacher mode
+            </a>
+            {% endif %}
+
+            <div class="nav-label">MY LEARNING</div>
+            <a href="/notes" class="nav-link">
+                <span class="nav-icon">▤</span> My Lecture Notes
+            </a>
+            <a href="/add-lecture" class="nav-link">
+                <span class="nav-icon">＋</span> Add Lecture
+            </a>
+            <a href="#test-understanding" class="nav-link">
+                <span class="nav-icon">◈</span> Practice Quiz
+            </a>
+            <a href="/quiz/history" class="nav-link">
+                <span class="nav-icon">◷</span> Quiz History
+            </a>
+
+            <div class="nav-label">AI TOOLS</div>
+            <a href="/upload-audio" class="nav-link">
+                <span class="nav-icon">♫</span> Upload Audio
+            </a>
+            <a href="/generate-notes" class="nav-link">
+                <span class="nav-icon">✦</span> Generate AI Notes
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-tip">
+                <strong>✦ Study smarter</strong>
+                <p>Turn lectures into useful notes, practice questions, and stronger understanding.</p>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">SMART LECTURE AI · STUDENT WORKSPACE</div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="workspace" id="dashboard">
+        <div class="content">
+
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">SMART LECTURE AI / STUDENT HOME</p>
+                    <h1>Learn from every lecture<span style="color:#a5b4fc">.</span></h1>
+                    <p>Capture in class, understand in two languages, practice with purpose, and grow with your learning community.</p>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="topbar-account">
+                        <div class="status-badge">
+                            <span class="status-dot"></span>
+                            Learning system ready
+                        </div>
+                        {% if current_user["profile_picture"] and current_user["profile_picture"].startswith('preset:') %}
+                            {% for value, icon, label in profile_avatar_options %}
+                                {% if current_user["profile_picture"] == value %}
+                                    <span class="account-avatar profile-avatar preset-{{ value.split(':')[1] }}">{{ icon }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        {% elif current_user["profile_picture"] %}
+                            <img class="account-avatar" src="{{ url_for('profile_picture', filename=current_user['profile_picture']) }}" alt="">
+                        {% else %}
+                            <span class="account-avatar account-avatar-fallback">{{ current_user["name"][0]|upper }}</span>
+                        {% endif %}
+                        <span class="account-name">{{ current_user["name"] }}</span>
+                        <a class="notification-link" href="{{ url_for('notifications') }}" aria-label="Open notifications">
+                            ◷{% if unread_notification_count %}<b>{{ unread_notification_count }}</b>{% endif %}
+                        </a>
+                        <a class="settings-link" href="{{ url_for('settings') }}" aria-label="Open settings">⚙</a>
+                        <form method="POST" action="{{ url_for('logout') }}">
+            {{ csrf_field() }}
+                            <button class="logout-button" type="submit">Log out</button>
+                        </form>
+                    </div>
+                </div>
+            </header>
+
+            <div class="ai-companion-row">
+            <section class="personal-coach personal-coach-corner" aria-labelledby="personal-coach-title">
+                <div class="personal-coach-copy">
+                    <p class="eyebrow">PERSONAL AI COACH</p>
+                    <h2 id="personal-coach-title">Your study partner is ready.</h2>
+                    <p>{{ personal_coach.status }}</p>
+                    <div class="coach-insight">
+                        <span class="coach-insight-icon">✦</span>
+                        <span><strong>Next best step</strong><small>{{ personal_coach.next_step }}</small></span>
+                    </div>
+                    <small class="coach-privacy">Private to your Smart Lecture AI activity.</small>
+                </div>
+                <div class="personal-coach-chat">
+                    <div class="coach-avatar">✧</div>
+                    <p id="coach-response" aria-live="polite">Ready to check in whenever you are.</p>
+                    <form id="coach-form">
+                        <label class="sr-only" for="coach-message">Message your personal AI coach</label>
+                        <input id="coach-message" name="message" maxlength="1000" placeholder="Ask your coach...">
+                        <button class="voice-button" id="coach-voice" type="button" aria-label="Speak to your coach">🎙</button>
+                        <button class="button button-primary" type="submit">Check in <span>→</span></button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="about-ai-card" aria-labelledby="about-ai-title">
+                <div class="about-ai-mark" aria-hidden="true">✦</div>
+                <div class="about-ai-content">
+                    <p class="eyebrow">ABOUT YOUR AI STUDY PARTNER</p>
+                    <h2 id="about-ai-title">
+                        {% if personal_coach.active_minutes == 0 %}
+                            Start gently. Your learning space is ready.
+                        {% else %}
+                            Welcome back — let’s continue from where you paused.
+                        {% endif %}
+                    </h2>
+                    <p>
+                        Smart Lecture AI turns classroom recordings and lecture notes into
+                        clear explanations, bilingual revision material, practice quizzes,
+                        and small next steps that help you keep moving after a long break.
+                    </p>
+                    <div class="about-ai-points">
+                        <span><b>01</b> Understand lectures</span>
+                        <span><b>02</b> Practice with purpose</span>
+                        <span><b>03</b> Build a steady habit</span>
+                    </div>
+                </div>
+                <a class="about-ai-link" href="#study-room">Start a 10-minute session <span>→</span></a>
+            </section>
+            </div>
+
+            <!-- HERO -->
+            <section class="hero">
+                <div class="hero-copy">
+                    <div class="hero-tag">✦ AI-POWERED LEARNING</div>
+                    <h2>Your classroom can keep teaching <span>after class.</span></h2>
+                    <p>
+                        Connect an ESP32 lecture microphone or use your phone when allowed.
+                        Smart Lecture AI turns speech into Tamil and English notes, then
+                        helps you remember through quizzes, focus tools, and a personal AI guide.
+                    </p>
+
+                    <div class="hero-actions">
+                        <a class="button button-primary" href="/upload-audio">
+                            ♫ Add a recording
+                        </a>
+                        <a class="button button-secondary" href="#ai-agent">
+                            ✧ Ask the AI
+                        </a>
+                    </div>
+                </div>
+
+                <div class="hero-visual" aria-hidden="true">
+                    <div class="orbit"></div>
+                    <div class="hero-book">📚</div>
+                </div>
+            </section>
+
+            <!-- LEARNING SNAPSHOT -->
+            <section class="learning-snapshot" aria-labelledby="snapshot-title">
+                <div class="snapshot-heading">
+                    <div>
+                        <p class="eyebrow">YOUR LEARNING SNAPSHOT</p>
+                        <h2 id="snapshot-title">Small actions, visible progress.</h2>
+                    </div>
+                    <span class="streak-badge">🔥 3 day focus streak · {{ points }} pts</span>
+                </div>
+                <div class="snapshot-grid">
+                    <article class="snapshot-stat">
+                        <span class="snapshot-icon purple">▤</span>
+                        <span><strong>{{ dashboard_stats.lecture_count }}</strong><small>lectures saved</small></span>
+                    </article>
+                    <article class="snapshot-stat">
+                        <span class="snapshot-icon green">◈</span>
+                        <span><strong>{{ dashboard_stats.quiz_attempts }}</strong><small>quiz attempts</small></span>
+                    </article>
+                    <article class="snapshot-stat">
+                        <span class="snapshot-icon orange">↗</span>
+                        <span><strong>{{ dashboard_stats.average_score }}%</strong><small>average quiz score</small></span>
+                    </article>
+                    <article class="snapshot-stat snapshot-next">
+                        <span class="snapshot-icon pink">✦</span>
+                        <span><strong>25 min</strong><small>recommended focus block</small></span>
+                    </article>
+                </div>
+            </section>
+
+            <section class="dashboard-tools-grid" aria-label="Personal learning tools">
+                <article class="dashboard-tool-card">
+                    <p class="eyebrow">EXAM PLANNER</p>
+                    <h2>{% if upcoming_plan %}{{ upcoming_plan['subject'] }}{% else %}Plan your next exam{% endif %}</h2>
+                    <p>{% if upcoming_plan %}Target {{ upcoming_plan['exam_date'] }} · {{ upcoming_plan['daily_minutes'] }} minutes daily.{% else %}Build a daily revision plan with tasks, deadlines, and focus blocks.{% endif %}</p>
+                    <a class="card-link" href="{{ url_for('planner') }}">Open planner ↗</a>
+                </article>
+                <article class="dashboard-tool-card weak-topics-card">
+                    <p class="eyebrow">WEAK TOPICS</p>
+                    <h2>Know what to review next.</h2>
+                    {% for topic in weak_topics %}<div class="weak-topic"><span>{{ topic['lecture_title'] }}</span><b>{{ topic['score'] }}%</b></div>{% else %}<p>Your quiz results will reveal topics that need more practice.</p>{% endfor %}
+                    <a class="card-link" href="{{ url_for('smart_search') }}">Search notes ↗</a>
+                </article>
+            </section>
+
+            <!-- CAPTURE AND LANGUAGE -->
+            <section class="capture-grid" aria-label="Lecture capture and language support">
+                <article class="capture-card capture-card-main">
+                    <div class="capture-card-heading">
+                        <div class="capture-icon">◉</div>
+                        <div>
+                            <p class="eyebrow">LIVE LECTURE PIPELINE</p>
+                            <h2>How your class becomes a study pack</h2>
+                        </div>
+                    </div>
+                    <div class="pipeline">
+                        <div class="pipeline-step"><span>1</span><strong>Capture</strong><small>ESP32 mic or phone</small></div>
+                        <div class="pipeline-line"></div>
+                        <div class="pipeline-step"><span>2</span><strong>Understand</strong><small>Transcript + AI notes</small></div>
+                        <div class="pipeline-line"></div>
+                        <div class="pipeline-step"><span>3</span><strong>Remember</strong><small>Quizzes + review</small></div>
+                    </div>
+                    <div class="capture-actions">
+                        <a class="button button-primary" href="/upload-audio">Upload lecture audio</a>
+                        <button class="button button-secondary" type="button" id="device-status-button">Check device connection</button>
+                    </div>
+                    <p class="device-status" id="device-status" aria-live="polite">Hardware mode is ready for the ESP32 integration.</p>
+                </article>
+
+                <article class="capture-card language-card">
+                    <div class="capture-icon language-icon">தமிழ்</div>
+                    <p class="eyebrow">BILINGUAL LEARNING</p>
+                    <h2>Learn in the language that helps you think.</h2>
+                    <p>Keep English technical terms while explaining difficult ideas in Tamil, or switch to English for exam preparation.</p>
+                    <div class="language-pills"><span>English notes</span><span>தமிழ் விளக்கம்</span></div>
+                    <a class="card-link" href="/generate-notes">Create bilingual notes <span>↗</span></a>
+                </article>
+            </section>
+
+            <!-- QUICK ACCESS -->
+            <section class="section" aria-labelledby="quick-access-title">
+                <div class="section-heading">
+                    <div>
+                        <h2 id="quick-access-title">Quick access</h2>
+                        <p>Everything you need to get started.</p>
+                    </div>
+                    <span class="section-label">YOUR TOOLS</span>
+                </div>
+
+                <div class="cards">
+                    <article class="card">
+                        <div class="card-icon purple">♫</div>
+                        <h3>Upload lecture audio</h3>
+                        <p>Convert a lecture recording into a transcript and structured study notes.</p>
+                        <a class="card-link" href="/upload-audio">Upload audio <span>↗</span></a>
+                    </article>
+
+                    <article class="card">
+                        <div class="card-icon green">▤</div>
+                        <h3>My lecture notes</h3>
+                        <p>Browse your saved lectures and revisit important concepts whenever you need.</p>
+                        <a class="card-link" href="/notes">Explore notes <span>↗</span></a>
+                    </article>
+
+                    <article class="card">
+                        <div class="card-icon orange">＋</div>
+                        <h3>Add a lecture</h3>
+                        <p>Write your own lecture content and keep your study material organized.</p>
+                        <a class="card-link" href="/add-lecture">Create lecture <span>↗</span></a>
+                    </article>
+
+                    <article class="card">
+                        <div class="card-icon pink">✦</div>
+                        <h3>Generate AI notes</h3>
+                        <p>Turn a lecture transcript into organized notes with clear explanations.</p>
+                        <a class="card-link" href="/generate-notes">Generate notes <span>↗</span></a>
+                    </article>
+                </div>
+            </section>
+
+            <!-- STUDY ROOM -->
+            <section class="study-room" id="study-room" aria-labelledby="study-room-title">
+                <div class="study-room-main">
+                    <div class="section-heading">
+                        <div>
+                            <p class="eyebrow">FOCUSED LEARNING MODE</p>
+                            <h2 id="study-room-title">Study Room</h2>
+                            <p>A calm place to review notes, ask questions, and practice without leaving your workspace.</p>
+                        </div>
+                        <span class="study-room-status"><span></span> Ready to focus</span>
+                    </div>
+
+                    <div class="study-room-actions">
+                        <a class="study-room-action" href="/notes">
+                            <span class="study-room-action-icon">▤</span>
+                            <span><strong>Review notes</strong><small>Revisit your saved lectures</small></span>
+                            <span class="study-room-arrow">↗</span>
+                        </a>
+                        <a class="study-room-action" href="#ai-agent">
+                            <span class="study-room-action-icon">✧</span>
+                            <span><strong>Ask the assistant</strong><small>Clarify a difficult concept</small></span>
+                            <span class="study-room-arrow">↗</span>
+                        </a>
+                        <a class="study-room-action" href="#test-understanding">
+                            <span class="study-room-action-icon">◈</span>
+                            <span><strong>Practice a quiz</strong><small>Test what you remember</small></span>
+                            <span class="study-room-arrow">↗</span>
+                        </a>
+                    </div>
+                </div>
+
+                <aside class="study-room-aside" aria-label="Study room guidance">
+                    <div class="study-room-timer">25<span>min</span></div>
+                    <strong>One focused block</strong>
+                    <p>Pick one topic and make steady progress before taking a short break.</p>
+                    <button type="button" class="button button-secondary" id="focus-timer-button">Start 25-minute timer <span>→</span></button>
+                    <p class="focus-timer-status" id="focus-timer-status" aria-live="polite"></p>
+                </aside>
+            </section>
+
+            <!-- QUIZZES -->
+            <section class="section" id="test-understanding">
+                <div class="section-heading">
+                    <div>
+                        <h2>Test your understanding</h2>
+                        <p>Practice what you have learned in different ways.</p>
+                    </div>
+                    <a class="card-link" href="/quiz/history">View history ↗</a>
+                </div>
+
+                <div class="quiz-cards">
+                    <article class="quiz-card">
+                        <div class="quiz-top">
+                            <div class="quiz-icon">☑</div>
+                            <span class="quiz-number">01 / MCQ</span>
+                        </div>
+                        <h3>Multiple choice</h3>
+                        <p>Choose from several options and check how well you understand the topic.</p>
+                        <a class="quiz-link" href="/quiz/mcqs">Start MCQs <span>→</span></a>
+                    </article>
+
+                    <article class="quiz-card">
+                        <div class="quiz-top">
+                            <div class="quiz-icon">✎</div>
+                            <span class="quiz-number">02 / RECALL</span>
+                        </div>
+                        <h3>Fill in the blanks</h3>
+                        <p>Recall key terms and complete sentences based on your lecture material.</p>
+                        <a class="quiz-link" href="/quiz/fill-blanks">Start practice <span>→</span></a>
+                    </article>
+
+                    <article class="quiz-card">
+                        <div class="quiz-top">
+                            <div class="quiz-icon">≡</div>
+                            <span class="quiz-number">03 / WRITING</span>
+                        </div>
+                        <h3>Short answers</h3>
+                        <p>Explain concepts in your own words and review your understanding.</p>
+                        <a class="quiz-link" href="/quiz/short-answers">Start questions <span>→</span></a>
+                    </article>
+                </div>
+            </section>
+
+            <!-- COMMUNITY AND FOCUS -->
+            <section class="community-grid" aria-label="Community progress and focus coaching">
+                <article class="community-card">
+                    <div class="section-heading">
+                        <div>
+                            <p class="eyebrow">CAMPUS COMMUNITY</p>
+                            <h2>Weekly learning league</h2>
+                            <p>Earn points for showing up, reviewing, and helping your classmates.</p>
+                        </div>
+                        <span class="points-total">+120 pts</span>
+                    </div>
+                    <div class="leaderboard">
+                        <div class="leaderboard-row"><span class="rank rank-gold">1</span><strong>You</strong><span class="leaderboard-bar"><i style="width:82%"></i></span><b>120</b></div>
+                        <div class="leaderboard-row"><span class="rank">2</span><strong>Priya S.</strong><span class="leaderboard-bar"><i style="width:68%"></i></span><b>98</b></div>
+                        <div class="leaderboard-row"><span class="rank">3</span><strong>Arun K.</strong><span class="leaderboard-bar"><i style="width:55%"></i></span><b>81</b></div>
+                    </div>
+                    <p class="demo-label">Demo leaderboard — connect your college or school group to make this live.</p>
+                </article>
+
+                <article class="community-card focus-card">
+                    <p class="eyebrow">FOCUS COACH</p>
+                    <h2>Your attention is part of learning.</h2>
+                    <p>When mobile access is enabled, the app can show time spent in distracting apps and suggest a healthier study block. It never needs to read private content.</p>
+                    <div class="focus-meter"><span style="width:64%"></span></div>
+                    <div class="focus-meta"><span>Focused today</span><strong>64%</strong></div>
+                    <button class="button button-secondary" type="button" id="focus-reminder-button">Set a focus reminder</button>
+                    <p class="device-status" id="focus-status" aria-live="polite"></p>
+                </article>
+            </section>
+
+            <!-- AI ASSISTANT -->
+            <section class="agent-box" id="ai-agent">
+                <div class="agent-header">
+                    <div class="agent-avatar">✧</div>
+                    <div>
+                        <h2>Smart Lecture AI Assistant</h2>
+                        <p>Ask questions, clarify difficult concepts, and explore new topics.</p>
+                    </div>
+                </div>
+
+                <p class="agent-intro">
+                    Choose an information source and enter your question below.
+                </p>
+
+                <form id="agent-form">
+                    <label class="form-label">Choose your information source</label>
+
+                    <div class="source-options">
+                        <label>
+                            <input type="radio" name="source-mode" value="notes" checked>
+                            📚 My notes
+                        </label>
+
+                        <label>
+                            <input type="radio" name="source-mode" value="web">
+                            🌐 Internet
+                        </label>
+
+                        <label>
+                            <input type="radio" name="source-mode" value="both">
+                            🔗 Both sources
+                        </label>
+                    </div>
+
+                    <label for="agent-question" class="form-label">
+                        What would you like to understand?
+                    </label>
+
+                    <textarea
+                        id="agent-question"
+                        name="question"
+                        placeholder="For example: Explain how a transistor works, using a simple example..."
+                        required
+                        maxlength="5000"
+                    ></textarea>
+
+                    <div class="agent-actions">
+                        <button class="primary-button" id="ask-button" type="submit">
+                            ✧ Ask AI Assistant <span>→</span>
+                        </button>
+
+                        <p class="status" id="agent-status" aria-live="polite">
+                            Ready when you are.
+                        </p>
+                    </div>
+                </form>
+
+                <div id="agent-answer" hidden aria-live="polite">
+                    <h3 class="answer-heading">✦ AI response</h3>
+                    <div id="answer-text"></div>
+
+                    <div id="web-sources" hidden>
+                        <h3>Internet sources</h3>
+                        <ul id="web-source-list"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <footer>
+                <strong>Smart Lecture AI</strong><br>
+                Designed to make learning more organized, accessible, and effective.
+            </footer>
+
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+
+<script>
+(function () {
+    "use strict";
+
+    const agentForm = document.getElementById("agent-form");
+    const questionInput = document.getElementById("agent-question");
+    const askButton = document.getElementById("ask-button");
+    const statusText = document.getElementById("agent-status");
+    const answerBox = document.getElementById("agent-answer");
+    const answerText = document.getElementById("answer-text");
+    const webSources = document.getElementById("web-sources");
+    const webSourceList = document.getElementById("web-source-list");
+
+    let conversationHistory = [];
+
+    function renderAnswer(answer) {
+        if (window.marked && window.DOMPurify) {
+            const html = window.marked.parse(answer);
+            answerText.innerHTML = window.DOMPurify.sanitize(html);
+        } else {
+            answerText.textContent = answer;
+        }
+    }
+
+    function renderSources(sources) {
+        webSourceList.replaceChildren();
+
+        if (!Array.isArray(sources) || sources.length === 0) {
+            const item = document.createElement("li");
+            item.textContent = "No Internet sources were returned.";
+            webSourceList.appendChild(item);
+            return;
+        }
+
+        sources.forEach(function (source) {
+            if (!source || !source.href) return;
+
+            let url;
+
+            try {
+                url = new URL(source.href);
+            } catch {
+                return;
+            }
+
+            if (url.protocol !== "https:" && url.protocol !== "http:") {
+                return;
+            }
+
+            const item = document.createElement("li");
+            item.className = "source-item";
+
+            const link = document.createElement("a");
+            link.href = url.href;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = source.title || url.hostname;
+
+            item.appendChild(link);
+
+            if (source.body) {
+                const description = document.createElement("p");
+                description.textContent = source.body;
+                item.appendChild(description);
+            }
+
+            webSourceList.appendChild(item);
+        });
+
+        if (webSourceList.children.length === 0) {
+            const item = document.createElement("li");
+            item.textContent = "No valid clickable Internet sources were returned.";
+            webSourceList.appendChild(item);
+        }
+    }
+
+    agentForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const question = questionInput.value.trim();
+
+        if (!question) {
+            statusText.textContent = "Please enter a question first.";
+            questionInput.focus();
+            return;
+        }
+
+        const selectedRadio = document.querySelector(
+            'input[name="source-mode"]:checked'
+        );
+
+        const selectedSource = selectedRadio ? selectedRadio.value : "notes";
+
+        askButton.disabled = true;
+        askButton.textContent = "⏳ Thinking...";
+        statusText.textContent = "The AI is working on your question...";
+        answerBox.hidden = true;
+        answerText.replaceChildren();
+        webSourceList.replaceChildren();
+
+        try {
+            const response = await fetch("/api/agent", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    question: question,
+                    source: selectedSource,
+                    history: conversationHistory
+                })
+            });
+
+            let data;
+
+            try {
+                data = await response.json();
+            } catch {
+                throw new Error("The server returned an invalid response.");
+            }
+
+            if (!response.ok) {
+                throw new Error(data.error || "The request could not be completed.");
+            }
+
+            const answer = data.answer || "No answer was returned.";
+
+            renderAnswer(answer);
+
+            conversationHistory.push(
+                { role: "user", content: question },
+                { role: "assistant", content: answer }
+            );
+
+            conversationHistory = conversationHistory.slice(-10);
+
+            answerBox.hidden = false;
+
+            if (selectedSource === "notes") {
+                webSources.hidden = true;
+            } else {
+                webSources.hidden = false;
+                renderSources(data.web_sources);
+            }
+
+            statusText.textContent = "✓ Your answer is ready.";
+
+        } catch (error) {
+            answerBox.hidden = false;
+            answerText.textContent = "Error: " + error.message;
+            webSources.hidden = true;
+            statusText.textContent =
+                "Request failed. Check that the Flask server is running.";
+
+        } finally {
+            askButton.disabled = false;
+            askButton.innerHTML = "✧ Ask AI Assistant <span>→</span>";
+        }
+    });
+
+    // Highlight the selected sidebar link.
+    const navigationLinks = document.querySelectorAll(".sidebar .nav-link");
+
+    navigationLinks.forEach(function (link) {
+        link.addEventListener("click", function () {
+            navigationLinks.forEach(function (item) {
+                item.classList.remove("active");
+            });
+
+            link.classList.add("active");
+        });
+    });
+
+    // Keep the dashboard link active when returning to the top.
+    const dashboardLink = document.querySelector(
+        '.sidebar .nav-link[href="#dashboard"]'
+    );
+
+    window.addEventListener("hashchange", function () {
+        if (window.location.hash === "#dashboard" && dashboardLink) {
+            navigationLinks.forEach(function (item) {
+                item.classList.remove("active");
+            });
+
+            dashboardLink.classList.add("active");
+        }
+    });
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register(
+            "{{ url_for('static', filename='service-worker.js') }}"
+        )
+        .then(async (registration) => {
+            {% if vapid_public_key %}
+            if ("PushManager" in window && "Notification" in window) {
+                const base64ToBytes = (value) => {
+                    const padding = "=".repeat((4 - value.length % 4) % 4);
+                    const raw = atob((value + padding).replace(/-/g, "+").replace(/_/g, "/"));
+                    return Uint8Array.from(raw, (character) => character.charCodeAt(0));
+                };
+                const permission = Notification.permission === "default"
+                    ? await Notification.requestPermission()
+                    : Notification.permission;
+                if (permission === "granted") {
+                    const existing = await registration.pushManager.getSubscription();
+                    const subscription = existing || await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: base64ToBytes("{{ vapid_public_key }}")
+                    });
+                    await fetch("{{ url_for('save_push_subscription') }}", {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify(subscription)
+                    });
+                }
+            }
+            {% endif %}
+        })
+        .then(() => console.log("PWA service worker registered!"))
+        .catch(error => console.error("Service worker error:", error));
+    });
+}
+</script>
+<script>
+(function () {
+    let activeSeconds = 0;
+    let lastSent = Date.now();
+    window.setInterval(function () {
+        activeSeconds += 15;
+        if (Date.now() - lastSent >= 60000) {
+            fetch("{{ url_for('activity_heartbeat') }}", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({active_seconds: activeSeconds})
+            }).catch(() => {});
+            activeSeconds = 0;
+            lastSent = Date.now();
+        }
+    }, 15000);
+    window.addEventListener("beforeunload", function () {
+        if (activeSeconds > 0 && navigator.sendBeacon) {
+            navigator.sendBeacon(
+                "{{ url_for('activity_heartbeat') }}",
+                new Blob([JSON.stringify({active_seconds: activeSeconds})], {type: "application/json"})
+            );
+        }
+    });
+})();
+</script>
+<script>
+(function () {
+    const deviceButton = document.getElementById("device-status-button");
+    const deviceStatus = document.getElementById("device-status");
+    const focusButton = document.getElementById("focus-reminder-button");
+    const focusStatus = document.getElementById("focus-status");
+    const coachForm = document.getElementById("coach-form");
+    const coachMessage = document.getElementById("coach-message");
+    const coachResponse = document.getElementById("coach-response");
+    const coachVoice = document.getElementById("coach-voice");
+    const timerButton = document.getElementById("focus-timer-button");
+    const timerStatus = document.getElementById("focus-timer-status");
+
+    if (deviceButton && deviceStatus) {
+        deviceButton.addEventListener("click", async function () {
+            deviceButton.disabled = true;
+            deviceButton.textContent = "Checking...";
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                deviceStatus.textContent = "Browser microphone access is unavailable. ESP32 mode can connect through the lecture upload service.";
+            } else {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    stream.getTracks().forEach(function (track) { track.stop(); });
+                    deviceStatus.textContent = "Phone microphone detected. You can use it when your classroom permits phone access.";
+                } catch (error) {
+                    deviceStatus.textContent = "Phone microphone permission was not granted. You can still use the ESP32 capture workflow.";
+                }
+            }
+
+            deviceButton.disabled = false;
+            deviceButton.textContent = "Check device connection";
+        });
+    }
+
+    if (focusButton && focusStatus) {
+        focusButton.addEventListener("click", function () {
+            if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+
+            focusStatus.textContent = "Focus reminder saved for your next 25-minute study block.";
+            focusButton.textContent = "Reminder enabled";
+        });
+    }
+
+    if (timerButton && timerStatus) {
+        let timerSeconds = 25 * 60;
+        let timerInterval = null;
+        timerButton.addEventListener("click", function () {
+            if (timerInterval) return;
+            timerButton.disabled = true;
+            timerButton.textContent = "Focus timer running";
+            timerStatus.textContent = "25:00 remaining — stay with one topic.";
+            timerInterval = window.setInterval(function () {
+                timerSeconds -= 1;
+                const minutes = String(Math.floor(timerSeconds / 60)).padStart(2, "0");
+                const seconds = String(timerSeconds % 60).padStart(2, "0");
+                timerStatus.textContent = minutes + ":" + seconds + " remaining — stay with one topic.";
+                if (timerSeconds <= 0) {
+                    window.clearInterval(timerInterval);
+                    timerInterval = null;
+                    timerButton.disabled = false;
+                    timerButton.textContent = "Start 25-minute timer";
+                    timerStatus.textContent = "Focus timer complete. Nice work — take a short break.";
+                    if ("Notification" in window && Notification.permission === "granted") {
+                        new Notification("Smart Lecture AI", { body: "Your focus timer is complete." });
+                    }
+                    fetch("{{ url_for('timer_notification') }}", {
+                        method: "POST",
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    });
+                }
+            }, 1000);
+        });
+    }
+
+    if (coachForm && coachMessage && coachResponse) {
+        coachForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            coachResponse.textContent = "Thinking about your next best step...";
+            try {
+                const response = await fetch("{{ url_for('personal_coach') }}", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({message: coachMessage.value})
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || "Coach unavailable");
+                coachResponse.textContent = data.message;
+                coachMessage.value = "";
+            } catch (error) {
+                coachResponse.textContent = "I could not check in right now. Try again in a moment.";
+            }
+        });
+    }
+
+    if (coachVoice && coachMessage && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = "en-IN";
+        recognition.onstart = () => coachVoice.textContent = "⏺";
+        recognition.onend = () => coachVoice.textContent = "🎙";
+        recognition.onresult = (event) => {
+            coachMessage.value = event.results[0][0].transcript;
+            coachMessage.focus();
+        };
+        coachVoice.addEventListener("click", () => recognition.start());
+    } else if (coachVoice) {
+        coachVoice.disabled = true;
+        coachVoice.title = "Voice input is not supported in this browser";
+    }
+})();
+</script>
+</body>
+</html>
