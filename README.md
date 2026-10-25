@@ -61,12 +61,13 @@ python -m unittest discover -s tests -p "test_*.py" -v
 
 ## Publish on Render
 
-The repository includes `render.yaml` for a production deployment. Create a
+The repository includes `render.yaml` for a no-card demo deployment. Create a
 new Render Blueprint from this repository and add `GROQ_API_KEY`,
 `TEACHER_EMAILS`, and optional VAPID variables in the Render environment.
-The blueprint uses Gunicorn, HTTPS-only cookies, and a persistent disk mounted
-at `/var/data` for the SQLite database and uploaded files. Keep the service at
-one worker while using SQLite; move to PostgreSQL before scaling horizontally.
+The blueprint uses Gunicorn and HTTPS-only cookies. The free demo stores its
+SQLite database and uploaded files in `/tmp`, so data can be cleared when the
+service restarts or redeploys. For real users, add persistent storage or move
+to PostgreSQL and object storage before launch.
 
 After deployment, open the Render HTTPS URL on a phone and choose **Install
 app** or **Add to Home Screen**. The existing manifest and service worker make

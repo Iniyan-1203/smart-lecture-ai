@@ -10,12 +10,8 @@ services:
       - key: COOKIE_SECURE
         value: "1"
       - key: DATABASE_PATH
-        value: /var/data/lecture_notes.db
+        value: /tmp/lecture_notes.db
       - key: UPLOAD_FOLDER
-        value: /var/data/uploads
+        value: /tmp/uploads
       - key: PYTHON_VERSION
         value: "3.12.8"
-    disk:
-      name: smart-lecture-data
-      mountPath: /var/data
-      sizeGB: 1
