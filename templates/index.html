@@ -25,13 +25,13 @@
 
         <nav aria-label="Main navigation">
             <div class="nav-label">WORKSPACE</div>
-            <a href="#dashboard" class="nav-link active">
+            <a href="#dashboard" class="nav-link active" data-dashboard-view="overview">
                 <span class="nav-icon">⌂</span> Dashboard
             </a>
-            <a href="#study-room" class="nav-link">
+            <a href="#study-room" class="nav-link" data-dashboard-view="study-room">
                 <span class="nav-icon">◉</span> Study Room
             </a>
-            <a href="#ai-agent" class="nav-link">
+            <a href="#ai-agent" class="nav-link" data-dashboard-view="ai-agent">
                 <span class="nav-icon">✧</span> AI Assistant
             </a>
             <a href="/community" class="nav-link">
@@ -63,7 +63,7 @@
             <a href="/add-lecture" class="nav-link">
                 <span class="nav-icon">＋</span> Add Lecture
             </a>
-            <a href="#test-understanding" class="nav-link">
+            <a href="#test-understanding" class="nav-link" data-dashboard-view="quiz">
                 <span class="nav-icon">◈</span> Practice Quiz
             </a>
             <a href="/quiz/history" class="nav-link">
@@ -130,7 +130,7 @@
                 </div>
             </header>
 
-            <div class="ai-companion-row">
+            <div class="ai-companion-row" data-dashboard-view="overview">
             <section class="personal-coach personal-coach-corner" aria-labelledby="personal-coach-title">
                 <div class="personal-coach-copy">
                     <p class="eyebrow">PERSONAL AI COACH</p>
@@ -181,7 +181,7 @@
             </div>
 
             <!-- HERO -->
-            <section class="hero">
+            <section class="hero" data-dashboard-view="overview">
                 <div class="hero-copy">
                     <div class="hero-tag">✦ AI-POWERED LEARNING</div>
                     <h2>Your classroom can keep teaching <span>after class.</span></h2>
@@ -208,7 +208,7 @@
             </section>
 
             <!-- LEARNING SNAPSHOT -->
-            <section class="learning-snapshot" aria-labelledby="snapshot-title">
+            <section class="learning-snapshot" aria-labelledby="snapshot-title" data-dashboard-view="overview">
                 <div class="snapshot-heading">
                     <div>
                         <p class="eyebrow">YOUR LEARNING SNAPSHOT</p>
@@ -236,7 +236,7 @@
                 </div>
             </section>
 
-            <section class="dashboard-tools-grid" aria-label="Personal learning tools">
+            <section class="dashboard-tools-grid" aria-label="Personal learning tools" data-dashboard-view="overview">
                 <article class="dashboard-tool-card">
                     <p class="eyebrow">EXAM PLANNER</p>
                     <h2>{% if upcoming_plan %}{{ upcoming_plan['subject'] }}{% else %}Plan your next exam{% endif %}</h2>
@@ -252,7 +252,7 @@
             </section>
 
             <!-- CAPTURE AND LANGUAGE -->
-            <section class="capture-grid" aria-label="Lecture capture and language support">
+            <section class="capture-grid" aria-label="Lecture capture and language support" data-dashboard-view="overview">
                 <article class="capture-card capture-card-main">
                     <div class="capture-card-heading">
                         <div class="capture-icon">◉</div>
@@ -286,7 +286,7 @@
             </section>
 
             <!-- QUICK ACCESS -->
-            <section class="section" aria-labelledby="quick-access-title">
+            <section class="section" aria-labelledby="quick-access-title" data-dashboard-view="overview">
                 <div class="section-heading">
                     <div>
                         <h2 id="quick-access-title">Quick access</h2>
@@ -327,7 +327,7 @@
             </section>
 
             <!-- STUDY ROOM -->
-            <section class="study-room" id="study-room" aria-labelledby="study-room-title">
+            <section class="study-room" id="study-room" aria-labelledby="study-room-title" data-dashboard-view="study-room">
                 <div class="study-room-main">
                     <div class="section-heading">
                         <div>
@@ -367,7 +367,7 @@
             </section>
 
             <!-- QUIZZES -->
-            <section class="section" id="test-understanding">
+            <section class="section" id="test-understanding" data-dashboard-view="quiz">
                 <div class="section-heading">
                     <div>
                         <h2>Test your understanding</h2>
@@ -410,7 +410,7 @@
             </section>
 
             <!-- COMMUNITY AND FOCUS -->
-            <section class="community-grid" aria-label="Community progress and focus coaching">
+            <section class="community-grid" aria-label="Community progress and focus coaching" data-dashboard-view="overview">
                 <article class="community-card">
                     <div class="section-heading">
                         <div>
@@ -440,7 +440,7 @@
             </section>
 
             <!-- AI ASSISTANT -->
-            <section class="agent-box" id="ai-agent">
+            <section class="agent-box" id="ai-agent" data-dashboard-view="ai-agent">
                 <div class="agent-header">
                     <div class="agent-avatar">✧</div>
                     <div>
@@ -681,31 +681,59 @@
 
     // Highlight the selected sidebar link.
     const navigationLinks = document.querySelectorAll(".sidebar .nav-link");
+    const dashboardViews = document.querySelectorAll("[data-dashboard-view]");
+
+    function viewFromHash() {
+        const hash = window.location.hash;
+        if (hash === "#study-room") return "study-room";
+        if (hash === "#ai-agent") return "ai-agent";
+        if (hash === "#test-understanding") return "quiz";
+        return "overview";
+    }
+
+    function showDashboardView(view, updateHash) {
+        dashboardViews.forEach(function (item) {
+            item.classList.toggle(
+                "dashboard-view-hidden",
+                item.dataset.dashboardView !== view
+            );
+        });
+
+        navigationLinks.forEach(function (item) {
+            item.classList.toggle(
+                "active",
+                item.dataset.dashboardView === view
+            );
+        });
+
+        if (updateHash) {
+            const hashByView = {
+                overview: "#dashboard",
+                "study-room": "#study-room",
+                "ai-agent": "#ai-agent",
+                quiz: "#test-understanding"
+            };
+            window.history.replaceState(
+                null,
+                "",
+                hashByView[view] || "#dashboard"
+            );
+        }
+    }
 
     navigationLinks.forEach(function (link) {
-        link.addEventListener("click", function () {
-            navigationLinks.forEach(function (item) {
-                item.classList.remove("active");
-            });
+        if (!link.dataset.dashboardView) return;
 
-            link.classList.add("active");
+        link.addEventListener("click", function () {
+            showDashboardView(link.dataset.dashboardView, false);
         });
     });
 
-    // Keep the dashboard link active when returning to the top.
-    const dashboardLink = document.querySelector(
-        '.sidebar .nav-link[href="#dashboard"]'
-    );
-
     window.addEventListener("hashchange", function () {
-        if (window.location.hash === "#dashboard" && dashboardLink) {
-            navigationLinks.forEach(function (item) {
-                item.classList.remove("active");
-            });
-
-            dashboardLink.classList.add("active");
-        }
+        showDashboardView(viewFromHash(), false);
     });
+
+    showDashboardView(viewFromHash(), false);
 })();
 </script>
 <script>

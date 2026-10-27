@@ -120,6 +120,10 @@ a {
     display: none !important;
 }
 
+.dashboard-view-hidden {
+    display: none !important;
+}
+
 /* MAIN LAYOUT */
 
 .layout {
