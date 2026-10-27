@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <meta name="description" content="Manage your Smart Lecture AI student settings">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
+    <title>Settings | Smart Lecture AI</title>
+</head>
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+<div class="app-frame">
+    <nav class="app-nav" aria-label="Primary navigation">
+        <a class="app-brand" href="{{ url_for('home') }}">
+            <span class="app-brand-mark" aria-hidden="true">📚</span>
+            <span><strong>Smart Lecture AI</strong><small>Personal student workspace</small></span>
+        </a>
+        <div class="app-nav-links">
+            <a href="{{ url_for('home') }}">Dashboard</a>
+            <a href="{{ url_for('notes') }}">My notes</a>
+            <a href="{{ url_for('community') }}">Community</a>
+            <a class="app-button-primary" href="{{ url_for('settings') }}">⚙ Settings</a>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">ACCOUNT / PREFERENCES</p>
+            <h1>Make the workspace yours.</h1>
+            <p>Manage your student profile, preferred notes language, notifications, and focus reminders.</p>
+        </div>
+    </header>
+
+    <main class="settings-grid">
+        <section class="app-panel">
+            <div class="settings-section-heading">
+                <div class="settings-section-icon">◎</div>
+                <div>
+                    <h2>Student profile</h2>
+                    <p>These details identify your personal learning space.</p>
+                </div>
+            </div>
+
+            {% if error %}<div class="app-alert" role="alert">{{ error }}</div>{% endif %}
+            {% if saved %}<div class="app-success" role="status">Settings saved successfully.</div>{% endif %}
+
+            <form class="app-form" method="POST" enctype="multipart/form-data">
+            {{ csrf_field() }}
+                <div class="profile-picture-editor">
+                    <div class="profile-picture-preview" id="profile-picture-preview">
+                        {% if user['profile_picture'] and user['profile_picture'].startswith('preset:') %}
+                            {% for value, icon, label in profile_avatar_options %}
+                                {% if user['profile_picture'] == value %}
+                                    <span class="profile-avatar preset-{{ value.split(':')[1] }}">{{ icon }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        {% elif user['profile_picture'] %}
+                            <img src="{{ url_for('profile_picture', filename=user['profile_picture']) }}" alt="Current profile picture">
+                        {% else %}
+                            <span>{{ user['name'][0]|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="profile-picture-controls">
+                        <strong>Choose your profile picture</strong>
+                        <p class="form-hint">Pick a student avatar or upload your own photo.</p>
+                        <div class="profile-avatar-options" role="radiogroup" aria-label="Default profile pictures">
+                            {% for value, icon, label in profile_avatar_options %}
+                                <label class="profile-avatar-option" title="{{ label }}">
+                                    <input type="radio" name="profile_avatar" value="{{ value }}" {% if user['profile_picture'] == value %}checked{% endif %}>
+                                    <span class="profile-avatar preset-{{ value.split(':')[1] }}">{{ icon }}</span>
+                                </label>
+                            {% endfor %}
+                            <label class="profile-avatar-option profile-upload-option" title="Upload a photo">
+                                <input id="profile_picture" name="profile_picture" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,image/*">
+                                <span class="profile-avatar upload-avatar">＋</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <label for="name">Full name
+                    <input id="name" name="name" type="text" value="{{ user['name'] }}" autocomplete="name" required>
+                </label>
+                <label for="email">Email address
+                    <input id="email" name="email" type="email" value="{{ user['email'] }}" autocomplete="email" required>
+                </label>
+                <label class="auth-check-row" for="contacts_enabled">
+                    <input id="contacts_enabled" name="contacts_enabled" type="checkbox" value="1" {% if user_settings['contacts_enabled'] %}checked{% endif %}>
+                    <span>Allow classmates who have my email to find me in Community</span>
+                </label>
+
+                <div class="settings-divider"></div>
+
+                <div class="settings-section-heading compact">
+                    <div class="settings-section-icon">文</div>
+                    <div>
+                        <h2>Learning preferences</h2>
+                        <p>Choose how Smart Lecture AI should prepare your study material.</p>
+                    </div>
+                </div>
+
+                <label for="language">Default notes language
+                    <select id="language" name="language">
+                        <option value="bilingual" {% if user_settings['language'] == 'bilingual' %}selected{% endif %}>English + தமிழ்</option>
+                        <option value="english" {% if user_settings['language'] == 'english' %}selected{% endif %}>English</option>
+                        <option value="tamil" {% if user_settings['language'] == 'tamil' %}selected{% endif %}>தமிழ் (Tamil)</option>
+                    </select>
+                </label>
+
+                <label for="theme">Workspace theme
+                    <select id="theme" name="theme">
+                        <option value="dark" {% if user_settings['theme'] == 'dark' %}selected{% endif %}>Dark academic</option>
+                        <option value="light" {% if user_settings['theme'] == 'light' %}selected{% endif %}>Light study mode</option>
+                        <option value="ocean" {% if user_settings['theme'] == 'ocean' %}selected{% endif %}>Ocean blue</option>
+                        <option value="forest" {% if user_settings['theme'] == 'forest' %}selected{% endif %}>Forest green</option>
+                        <option value="sunset" {% if user_settings['theme'] == 'sunset' %}selected{% endif %}>Sunset coral</option>
+                        <option value="lavender" {% if user_settings['theme'] == 'lavender' %}selected{% endif %}>Lavender calm</option>
+                    </select>
+                </label>
+
+                <label class="settings-toggle">
+                    <input type="checkbox" name="notifications_enabled" value="1" {% if user_settings['notifications_enabled'] %}checked{% endif %}>
+                    <span><strong>Learning notifications</strong><small>Receive reminders for notes, quizzes, and weekly progress.</small></span>
+                </label>
+                <label class="settings-toggle">
+                    <input type="checkbox" name="left_handed_mode" value="1" {% if user_settings['left_handed_mode'] %}checked{% endif %}>
+                    <span><strong>Left-handed mode</strong><small>Move the dashboard navigation to the right side for easier reach.</small></span>
+                </label>
+                <label class="settings-toggle">
+                    <input type="checkbox" name="focus_reminders_enabled" value="1" {% if user_settings['focus_reminders_enabled'] %}checked{% endif %}>
+                    <span><strong>Focus reminders</strong><small>Get gentle prompts to start a focused study block.</small></span>
+                </label>
+
+                <div class="app-actions">
+                    <button class="app-button app-button-primary" type="submit">Save settings</button>
+                    <a class="app-button" href="{{ url_for('home') }}">Cancel</a>
+                </div>
+            </form>
+        </section>
+
+        <aside class="settings-side">
+            <div class="settings-side-card">
+                <span class="settings-side-icon">🔒</span>
+                <h2>Your learning, your control.</h2>
+                <p>Settings are saved to your student account. Future mobile permissions for notifications and screen-time insights will always require your consent.</p>
+            </div>
+            <div class="settings-side-card settings-side-card-accent">
+                <span class="settings-side-icon">✦</span>
+                <h2>Next learning step</h2>
+                <p>Return to the Study Room when you are ready to review a lecture or start a 25-minute focus block.</p>
+                <a class="card-link" href="{{ url_for('home') }}#study-room">Open Study Room <span>↗</span></a>
+            </div>
+        </aside>
+    </main>
+</div>
+<script>
+    const profilePreview = document.getElementById("profile-picture-preview");
+    const profileFile = document.getElementById("profile_picture");
+    const avatarOptions = document.querySelectorAll('input[name="profile_avatar"]');
+
+    avatarOptions.forEach((option) => {
+        option.addEventListener("change", () => {
+            if (!option.checked) return;
+            const avatar = option.nextElementSibling.cloneNode(true);
+            profilePreview.replaceChildren(avatar);
+            if (profileFile) profileFile.value = "";
+        });
+    });
+
+    if (profileFile) {
+        profileFile.addEventListener("change", () => {
+            const file = profileFile.files[0];
+            if (!file) return;
+            avatarOptions.forEach((option) => option.checked = false);
+            const image = document.createElement("img");
+            image.alt = "Selected profile picture";
+            image.src = URL.createObjectURL(file);
+            profilePreview.replaceChildren(image);
+        });
+    }
+</script>
+</body>
+</html>

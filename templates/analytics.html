@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
+    <title>Learning analytics | Smart Lecture AI</title>
+</head>
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+<div class="app-frame">
+    <nav class="app-nav">
+        <a class="app-brand" href="{{ url_for('home') }}">📚 <strong>Smart Lecture AI</strong></a>
+        <div class="app-nav-links"><a href="{{ url_for('home') }}">Dashboard</a><a class="app-button-primary" href="{{ url_for('analytics') }}">Analytics</a><a href="{{ url_for('settings') }}">⚙ Settings</a></div>
+    </nav>
+    <header class="page-header"><p class="eyebrow">YOUR PROGRESS</p><h1>See how your study habit is growing.</h1><p>Private analytics based on your own quizzes, focus time, and planner tasks.</p></header>
+    <main class="analytics-grid">
+        <section class="analytics-stat-grid">
+            <article class="app-panel analytics-stat"><strong>{{ quiz_summary['attempts'] }}</strong><span>quiz attempts</span></article>
+            <article class="app-panel analytics-stat"><strong>{{ quiz_summary['average_score']|round|int }}%</strong><span>average score</span></article>
+            <article class="app-panel analytics-stat"><strong>{{ quiz_summary['best_score']|round|int }}%</strong><span>best score</span></article>
+            <article class="app-panel analytics-stat"><strong>{{ ((activity['total_active_seconds'] if activity else 0) / 60)|round|int }}</strong><span>active minutes</span></article>
+        </section>
+        <section class="app-panel"><h2>Topic performance</h2>{% for item in subject_scores %}<div class="analytics-row"><span><strong>{{ item['lecture_title'] }}</strong><small>{{ item['attempts'] }} attempt{% if item['attempts'] != 1 %}s{% endif %}</small></span><b>{{ item['score'] }}%</b></div>{% else %}<p class="empty-state">Complete a quiz to see topic performance.</p>{% endfor %}</section>
+        <section class="app-panel"><h2>Consistency</h2><p class="analytics-copy">You have completed <strong>{{ completed_tasks }}</strong> planner task{% if completed_tasks != 1 %}s{% endif %}. Small completed actions are how long-term progress becomes visible.</p>{% if activity %}<p class="form-hint">Last active: {{ activity['last_seen_at'] }}</p>{% endif %}</section>
+    </main>
+</div>
+</body>
+</html>

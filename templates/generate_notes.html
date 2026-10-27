@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
+    <title>Generate notes | Smart Lecture AI</title>
+</head>
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+<div class="app-frame">
+    <nav class="app-nav" aria-label="Primary navigation">
+        <a class="app-brand" href="{{ url_for('home') }}">
+            <span class="app-brand-mark" aria-hidden="true">✦</span>
+            <span><strong>Smart Lecture AI</strong><small>Turn transcripts into clarity</small></span>
+        </a>
+        <div class="app-nav-links">
+            <a href="{{ url_for('home') }}">Dashboard</a>
+            <a href="{{ url_for('notes') }}">My notes</a>
+            <a href="{{ url_for('upload_audio') }}">Upload audio</a>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">AI tools / notes</p>
+            <h1>Organize a transcript.</h1>
+            <p>Paste lecture text below and generate structured notes with headings, definitions, key takeaways, and a concise summary.</p>
+        </div>
+    </header>
+
+    <main class="app-panel">
+        {% if error %}<div class="app-alert" role="alert">{{ error }}</div>{% endif %}
+        <form class="app-form" method="POST" enctype="multipart/form-data" id="notesForm">
+            {{ csrf_field() }}
+            <label for="subject">Subject
+                <input type="text" id="subject" name="subject" placeholder="e.g. Basic Electronics" required>
+            </label>
+            <label for="title">Lecture title
+                <input type="text" id="title" name="title" placeholder="e.g. Semiconductor Diodes" required>
+            </label>
+            <label for="language">Notes language
+                <select id="language" name="language">
+                    <option value="bilingual">English + தமிழ் (recommended)</option>
+                    <option value="english">English</option>
+                    <option value="tamil">தமிழ் (Tamil)</option>
+                </select>
+            </label>
+            <label for="transcript">Lecture transcript
+                <textarea id="transcript" name="transcript" placeholder="Paste your lecture transcript here, or upload a file below..."></textarea>
+            </label>
+            <div class="study-file-picker">
+                <input class="study-file-input" type="file" id="source_file" name="source_file" accept=".pdf,.docx,.pptx,.txt,.md">
+                <button class="add-file-button" type="button" id="addFileButton"><span aria-hidden="true">＋</span> Add study file</button>
+                <span class="selected-file-name" id="selectedFileName">No file selected</span>
+            </div>
+            <p class="form-hint">PDF, DOCX, PPTX, TXT, or MD. The file text will be used instead of pasted text.</p>
+            <div class="app-actions">
+                <button class="app-button app-button-primary" type="submit" id="generateButton">✨ Generate and save notes</button>
+                <a class="app-button" href="{{ url_for('notes') }}">View saved notes</a>
+            </div>
+        </form>
+    </main>
+</div>
+<script>
+document.getElementById("notesForm").addEventListener("submit", function () {
+    const button = document.getElementById("generateButton");
+    button.disabled = true;
+    button.textContent = "Generating notes...";
+});
+
+const sourceFile = document.getElementById("source_file");
+const addFileButton = document.getElementById("addFileButton");
+const selectedFileName = document.getElementById("selectedFileName");
+addFileButton.addEventListener("click", function () {
+    sourceFile.click();
+});
+sourceFile.addEventListener("change", function () {
+    selectedFileName.textContent = sourceFile.files.length
+        ? sourceFile.files[0].name
+        : "No file selected";
+});
+</script>
+</body>
+</html>

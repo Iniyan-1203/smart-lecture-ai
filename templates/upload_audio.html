@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
+    <title>Upload lecture | Smart Lecture AI</title>
+</head>
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+<div class="app-frame">
+    <nav class="app-nav" aria-label="Primary navigation">
+        <a class="app-brand" href="{{ url_for('home') }}">
+            <span class="app-brand-mark" aria-hidden="true">📚</span>
+            <span><strong>Smart Lecture AI</strong><small>Your intelligent study space</small></span>
+        </a>
+        <div class="app-nav-links">
+            <a href="{{ url_for('home') }}">Dashboard</a>
+            <a href="{{ url_for('notes') }}">My notes</a>
+            <a class="app-button-primary" href="{{ url_for('generate_notes') }}">Generate notes from a file</a>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">AI tools / audio</p>
+            <h1>Turn a lecture into notes.</h1>
+            <p>Upload a recording or use the document workflow to turn study material into organized notes.</p>
+        </div>
+    </header>
+
+    <main class="app-panel">
+        {% if error %}<div class="app-alert" role="alert">{{ error }}</div>{% endif %}
+        <form class="app-form" action="{{ url_for('upload_audio') }}" method="POST" enctype="multipart/form-data">
+            {{ csrf_field() }}
+            <label for="subject">Subject
+                <input type="text" id="subject" name="subject" placeholder="Example: Electronics" required>
+            </label>
+            <label for="title">Lecture title
+                <input type="text" id="title" name="title" placeholder="Example: Introduction to Resistors" required>
+            </label>
+            <label for="audio">Lecture recording
+                <input type="file" id="audio" name="audio" accept="audio/*,video/webm" required>
+            </label>
+            <p class="form-hint">Supported audio formats include WAV, MP3, M4A, OGG, WEBM, and FLAC. Maximum file size is 25 MB.</p>
+            <div class="app-actions">
+                <button class="app-button app-button-primary" type="submit">🎧 Transcribe &amp; generate notes</button>
+                <a class="app-button" href="{{ url_for('generate_notes') }}">Upload PDF or document</a>
+                <a class="app-button" href="{{ url_for('home') }}">Back to dashboard</a>
+            </div>
+        </form>
+        <div class="app-note"><strong>Privacy-friendly workflow:</strong> your saved notes stay in this app's lecture library after processing.</div>
+    </main>
+</div>
+</body>
+</html>

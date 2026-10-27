@@ -1,0 +1,17 @@
+ # Secrets
+.env
+.env.*
+!.env.example
+
+# Python virtual environment and cache
+.venv/
+__pycache__/
+*.py[cod]
+
+# Local database and uploaded files
+lecture_notes.db
+uploads/
+
+# Local configuration
+.vscode/
+.DS_Store

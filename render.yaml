@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: smart-lecture-ai
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 180
+    envVars:
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "1"
+      - key: DATABASE_PATH
+        value: /tmp/lecture_notes.db
+      - key: UPLOAD_FOLDER
+        value: /tmp/uploads
+      - key: PYTHON_VERSION
+        value: "3.12.8"

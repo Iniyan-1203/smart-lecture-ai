@@ -1,0 +1,761 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz History | Smart Lecture AI</title>
+
+    <style>
+        :root {
+            --bg: #0b1020;
+            --panel: #111a30;
+            --border: #26324b;
+            --text: #f1f5ff;
+            --muted: #94a3b8;
+            --primary: #818cf8;
+            --cyan: #67e8f9;
+            --green: #4ade80;
+            --red: #f87171;
+            --yellow: #fbbf24;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(ellipse at top left, #182044 0%, transparent 42%),
+                var(--bg);
+            color: var(--text);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, select {
+            font: inherit;
+        }
+
+        .page {
+            width: min(100% - 40px, 1100px);
+            margin: 0 auto;
+            padding: 28px 0 55px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 28px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            letter-spacing: -.4px;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            font-size: 21px;
+        }
+
+        .brand small {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+        }
+
+        .back-link {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .back-link:hover {
+            color: var(--cyan);
+        }
+
+        .hero {
+            padding: 32px;
+            margin-bottom: 24px;
+            border: 1px solid #343d68;
+            border-radius: 22px;
+            background: linear-gradient(125deg, #191f43, #17152f 75%, #202044);
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 5px 10px;
+            border: 1px solid #444777;
+            border-radius: 999px;
+            background: #27254b;
+            color: #c7d2fe;
+            font-size: 11px;
+            font-weight: 750;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            margin: 15px 0 8px;
+            font-size: clamp(27px, 5vw, 38px);
+            line-height: 1.2;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            max-width: 650px;
+            margin: 0;
+            color: #b6c1dc;
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            min-width: 0;
+            padding: 21px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--panel);
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+        .stat-icon {
+            font-size: 20px;
+        }
+
+        .stat-value {
+            margin-top: 12px;
+            font-size: 30px;
+            font-weight: 850;
+            line-height: 1.25;
+            letter-spacing: -.7px;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-caption {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .panel {
+            padding: 25px;
+            margin-bottom: 23px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: rgba(17, 26, 48, .94);
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .panel-heading h2 {
+            margin: 0 0 3px;
+            font-size: 19px;
+        }
+
+        .panel-heading p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .filters {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filters select {
+            min-height: 42px;
+            max-width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #34415d;
+            border-radius: 10px;
+            background: #0c1428;
+            color: var(--text);
+            font-size: 12px;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 15px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #0d162b;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        td {
+            color: #dce5f8;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #151f36;
+        }
+
+        .lecture-title {
+            min-width: 150px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .subtext {
+            display: block;
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border: 1px solid #3a4272;
+            border-radius: 999px;
+            background: #202443;
+            color: #c7d2fe;
+            font-size: 10px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .score-cell {
+            min-width: 130px;
+        }
+
+        .score-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 7px;
+            font-weight: 750;
+        }
+
+        .percentage {
+            color: var(--cyan);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #27334c;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #6366f1, #67e8f9);
+        }
+
+        .empty-state {
+            padding: 45px 20px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 65px;
+            height: 65px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 15px;
+            border: 1px solid #343d68;
+            border-radius: 20px;
+            background: #202443;
+            font-size: 28px;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 7px;
+            font-size: 18px;
+        }
+
+        .empty-state p {
+            max-width: 430px;
+            margin: 0 auto 20px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .primary-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 43px;
+            padding: 11px 16px;
+            border: 0;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #7c3aed);
+            color: white;
+            font-size: 12px;
+            font-weight: 750;
+            cursor: pointer;
+        }
+
+        .primary-button:hover {
+            filter: brightness(1.12);
+        }
+
+        .bottom-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 18px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .bottom-links a {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+        .bottom-links a:hover {
+            color: var(--cyan);
+        }
+
+        .hidden-row {
+            display: none;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        @media (max-width: 700px) {
+            .page {
+                width: min(100% - 24px, 1100px);
+                padding-top: 17px;
+            }
+
+            .hero {
+                padding: 23px 20px;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 17px;
+            }
+
+            .stat-value {
+                font-size: 26px;
+            }
+
+            .panel-heading {
+                align-items: stretch;
+            }
+
+            .filters {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .filters select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
+<main class="page">
+
+    <nav class="topbar" aria-label="Main navigation">
+        <a class="brand" href="/">
+            <span class="brand-icon">✦</span>
+            <span>
+                Smart Lecture AI
+                <small>AI-powered learning</small>
+            </span>
+        </a>
+
+        <a class="back-link" href="/">← Back to Dashboard</a>
+    </nav>
+
+    <header class="hero">
+        <span class="eyebrow">📈 Learning Analytics</span>
+        <h1>Your Quiz History</h1>
+        <p>
+            Track your learning progress, review previous quiz attempts,
+            and see how your understanding improves over time.
+        </p>
+    </header>
+
+    <!-- SUMMARY CARDS -->
+    <section class="stats-grid" aria-label="Quiz statistics">
+        <article class="stat-card">
+            <div class="stat-top">
+                <span class="stat-label">TOTAL ATTEMPTS</span>
+                <span class="stat-icon">📝</span>
+            </div>
+            <div class="stat-value" id="total-attempts">—</div>
+            <div class="stat-caption">Quizzes you have completed</div>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-top">
+                <span class="stat-label">AVERAGE SCORE</span>
+                <span class="stat-icon">🎯</span>
+            </div>
+            <div class="stat-value" id="average-score">—</div>
+            <div class="stat-caption">Across your recorded attempts</div>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-top">
+                <span class="stat-label">BEST SCORE</span>
+                <span class="stat-icon">🏆</span>
+            </div>
+            <div class="stat-value" id="best-score">—</div>
+            <div class="stat-caption">Your highest recorded percentage</div>
+        </article>
+    </section>
+
+    <!-- HISTORY TABLE -->
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <h2>📚 Previous Attempts</h2>
+                <p id="history-caption">Your recorded quiz attempts.</p>
+            </div>
+
+            <div class="filters">
+                <select id="type-filter" aria-label="Filter by quiz type">
+                    <option value="all">All quiz types</option>
+                    <option value="mcq">MCQ</option>
+                    <option value="fill_blanks">Fill in the Blanks</option>
+                    <option value="short_answer">Short Answers</option>
+                </select>
+
+                <select id="sort-filter" aria-label="Sort quiz history">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="highest">Highest score</option>
+                    <option value="lowest">Lowest score</option>
+                </select>
+            </div>
+        </div>
+
+        {% if history %}
+        <div class="table-wrap" id="history-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Lecture</th>
+                        <th>Quiz Type</th>
+                        <th>Score</th>
+                        <th>Date &amp; Time</th>
+                    </tr>
+                </thead>
+
+                <tbody id="history-body">
+                    {% for item in history %}
+                    <tr
+                        class="history-row"
+                        data-type="{{ item.quiz_type | lower | replace('-', '_') | replace(' ', '_') }}"
+                        data-percentage="{{ item.percentage | float }}"
+                        data-date="{{ item.attempted_at }}"
+                        data-index="{{ loop.index0 }}"
+                    >
+                        <td>
+                            <div class="lecture-title">
+                                {{ item.lecture_title or 'Untitled lecture' }}
+                            </div>
+                        </td>
+
+                        <td>
+                            {% set quiz_type = item.quiz_type | lower | replace('-', '_') | replace(' ', '_') %}
+
+                            {% if quiz_type in ['mcq', 'mcqs', 'multiple_choice'] %}
+                                <span class="type-badge">MCQ</span>
+                            {% elif quiz_type in ['fill_blanks', 'fill_in_the_blanks', 'fill_blank'] %}
+                                <span class="type-badge">Fill in the Blanks</span>
+                            {% elif quiz_type in ['short_answer', 'short_answers'] %}
+                                <span class="type-badge">Short Answers</span>
+                            {% else %}
+                                <span class="type-badge">
+                                    {{ item.quiz_type | replace('_', ' ') | title }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="score-cell">
+                            <div class="score-line">
+                                <span>{{ item.score }} / {{ item.max_score }}</span>
+                                <span class="percentage">
+                                    {{ "%.0f"|format(item.percentage|float) }}%
+                                </span>
+                            </div>
+
+                            <div class="progress-track">
+                                <div
+                                    class="progress-fill"
+                                    style="width: {{ [[item.percentage|float, 0]|max, 100]|min }}%;"
+                                ></div>
+                            </div>
+                        </td>
+
+                        <td>
+                            {{ item.attempted_at or 'Date unavailable' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty-state" id="filter-empty" hidden>
+            <div class="empty-icon">🔎</div>
+            <h3>No matching attempts</h3>
+            <p>Try selecting a different quiz type or sorting option.</p>
+            <button class="primary-button" id="reset-filters" type="button">
+                Reset Filters
+            </button>
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📖</div>
+            <h3>Your learning journey starts here</h3>
+            <p>
+                You haven't completed any quizzes yet. Take a quiz to see
+                your scores and track your progress on this page.
+            </p>
+            <a class="primary-button" href="/quiz/mcqs">
+                Start Your First Quiz →
+            </a>
+        </div>
+        {% endif %}
+    </section>
+
+    <footer class="bottom-links">
+        <a href="/">Dashboard</a>
+        <a href="/notes">Lecture Notes</a>
+        <a href="/quiz/mcqs">MCQ Quiz</a>
+        <a href="/quiz/fill-blanks">Fill in the Blanks</a>
+        <a href="/quiz/short-answers">Short Answers</a>
+    </footer>
+
+</main>
+
+<script>
+    const rows = Array.from(document.querySelectorAll(".history-row"));
+    const typeFilter = document.getElementById("type-filter");
+    const sortFilter = document.getElementById("sort-filter");
+    const historyBody = document.getElementById("history-body");
+    const filterEmpty = document.getElementById("filter-empty");
+    const tableWrap = document.getElementById("history-table-wrap");
+    const historyCaption = document.getElementById("history-caption");
+
+    function normalizeType(type) {
+        const value = (type || "")
+            .toLowerCase()
+            .replace(/-/g, "_")
+            .replace(/\s+/g, "_");
+
+        if (["mcq", "mcqs", "multiple_choice"].includes(value)) {
+            return "mcq";
+        }
+
+        if ([
+            "fill_blanks",
+            "fill_in_the_blanks",
+            "fill_blank"
+        ].includes(value)) {
+            return "fill_blanks";
+        }
+
+        if (["short_answer", "short_answers"].includes(value)) {
+            return "short_answer";
+        }
+
+        return value;
+    }
+
+    function getTimestamp(row) {
+        const value = row.dataset.date || "";
+        const parsed = Date.parse(value);
+        return Number.isNaN(parsed) ? 0 : parsed;
+    }
+
+    function updateStatistics(visibleRows) {
+        const total = visibleRows.length;
+
+        document.getElementById("total-attempts").textContent = total;
+
+        if (!total) {
+            document.getElementById("average-score").textContent = "—";
+            document.getElementById("best-score").textContent = "—";
+            return;
+        }
+
+        const percentages = visibleRows.map(row => {
+            const value = Number(row.dataset.percentage);
+            return Number.isFinite(value)
+                ? Math.max(0, Math.min(100, value))
+                : 0;
+        });
+
+        const average = percentages.reduce((sum, value) => sum + value, 0) / total;
+        const best = Math.max(...percentages);
+
+        document.getElementById("average-score").textContent =
+            Math.round(average) + "%";
+
+        document.getElementById("best-score").textContent =
+            Math.round(best) + "%";
+    }
+
+    function applyFilters() {
+        const selectedType = typeFilter.value;
+        const selectedSort = sortFilter.value;
+
+        let visibleRows = rows.filter(row => {
+            if (selectedType === "all") {
+                return true;
+            }
+
+            return normalizeType(row.dataset.type) === selectedType;
+        });
+
+        visibleRows.sort((a, b) => {
+            if (selectedSort === "oldest") {
+                return getTimestamp(a) - getTimestamp(b);
+            }
+
+            if (selectedSort === "highest") {
+                return Number(b.dataset.percentage) -
+                    Number(a.dataset.percentage);
+            }
+
+            if (selectedSort === "lowest") {
+                return Number(a.dataset.percentage) -
+                    Number(b.dataset.percentage);
+            }
+
+            return getTimestamp(b) - getTimestamp(a);
+        });
+
+        rows.forEach(row => row.classList.add("hidden-row"));
+
+        visibleRows.forEach(row => {
+            row.classList.remove("hidden-row");
+            historyBody.appendChild(row);
+        });
+
+        updateStatistics(visibleRows);
+
+        if (historyCaption) {
+            historyCaption.textContent =
+                "Showing " + visibleRows.length +
+                " of " + rows.length + " recorded attempts.";
+        }
+
+        if (filterEmpty && tableWrap) {
+            filterEmpty.hidden = visibleRows.length !== 0;
+            tableWrap.hidden = visibleRows.length === 0;
+        }
+    }
+
+    if (typeFilter && sortFilter) {
+        typeFilter.addEventListener("change", applyFilters);
+        sortFilter.addEventListener("change", applyFilters);
+    }
+
+    const resetButton = document.getElementById("reset-filters");
+
+    if (resetButton) {
+        resetButton.addEventListener("click", function () {
+            typeFilter.value = "all";
+            sortFilter.value = "newest";
+            applyFilters();
+        });
+    }
+
+    applyFilters();
+</script>
+
+</body>
+</html>

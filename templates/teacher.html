@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
+    <title>Teacher classroom | Smart Lecture AI</title>
+</head>
+<body data-theme="{{ theme }}">
+<div class="app-frame">
+    <nav class="app-nav"><a class="app-brand" href="{{ url_for('home') }}">📚 <strong>Smart Lecture AI</strong></a><div class="app-nav-links"><a href="{{ url_for('home') }}">Dashboard</a><a class="app-button-primary" href="{{ url_for('teacher_dashboard') }}">Teacher mode</a></div></nav>
+    <header class="page-header"><p class="eyebrow">CLASSROOM CONTROL</p><h1>Keep your students in the loop.</h1><p>Create private classrooms, share a join code, and send updates only to enrolled students.</p></header>
+    {% with messages = get_flashed_messages() %}{% if messages %}<div class="app-alert">{% for message in messages %}<div>{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
+    {% if error %}<div class="app-alert">{{ error }}</div>{% endif %}
+    <main class="planner-grid">
+        <section class="app-panel"><h2>Create a classroom</h2><form class="app-form" method="POST">
+            {{ csrf_field() }}<input type="hidden" name="action" value="create_classroom"><label>Class name<input name="classroom_name" maxlength="100" required placeholder="Electronics — Semester 1"></label><button class="app-button app-button-primary" type="submit">Create classroom</button></form>{% for classroom in classrooms %}<div class="announcement-row"><strong>{{ classroom['name'] }}</strong><p>Join code: <b>{{ classroom['join_code'] }}</b></p><small>{{ classroom['student_count'] }} enrolled student{% if classroom['student_count'] != 1 %}s{% endif %}</small></div>{% else %}<p class="empty-state">Create your first classroom to get a private join code.</p>{% endfor %}</section>
+        <section class="app-panel"><h2>Post an announcement</h2><form class="app-form" method="POST">
+            {{ csrf_field() }}<input type="hidden" name="action" value="announcement"><label>Classroom<select name="classroom_id"><option value="">All students (legacy broadcast)</option>{% for classroom in classrooms %}<option value="{{ classroom['id'] }}">{{ classroom['name'] }}</option>{% endfor %}</select></label><label>Title<input name="title" maxlength="120" required placeholder="Quiz revision session"></label><label>Message<textarea name="body" rows="6" maxlength="1000" required placeholder="Bring your notes and join at 4 PM."></textarea></label><button class="app-button app-button-primary" type="submit">Publish announcement</button></form></section>
+        <section class="app-panel"><h2>Recent announcements</h2>{% for item in announcements %}<div class="announcement-row"><strong>{{ item['title'] }}</strong>{% if item['classroom_name'] %}<small>{{ item['classroom_name'] }}</small>{% endif %}<p>{{ item['body'] }}</p><small>{{ item['created_at'] }}</small></div>{% else %}<p class="empty-state">No announcements yet.</p>{% endfor %}</section>
+    </main>
+</div>
+</body>
+</html>
