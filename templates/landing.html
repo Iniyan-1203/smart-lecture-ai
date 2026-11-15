@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <meta name="description" content="Study Pilot turns lectures into clear notes, practice quizzes, and focused study sessions.">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
+    <title>Study Pilot | Learn with momentum</title>
+</head>
+<body data-theme="dark">
+<main class="public-shell">
+    <nav class="public-nav" aria-label="Public navigation">
+        <a class="app-brand" href="{{ url_for('home') }}" aria-label="Study Pilot home">
+            <span class="app-brand-mark" aria-hidden="true">✦</span>
+            <span><strong>Study Pilot</strong><small>Your intelligent study space</small></span>
+        </a>
+        <div class="app-nav-links">
+            <a href="{{ url_for('login') }}">Sign in</a>
+            <a class="app-button app-button-primary" href="{{ url_for('register') }}">Create free account</a>
+        </div>
+    </nav>
+
+    <section class="public-hero">
+        <div class="public-hero-copy">
+            <p class="eyebrow">YOUR AI STUDY COMPANION</p>
+            <h1>Turn every lecture into <span>forward motion.</span></h1>
+            <p class="public-lede">Study Pilot brings your lectures, bilingual notes, practice quizzes, and personal AI guidance into one calm workspace built for learning.</p>
+            <div class="app-actions">
+                <a class="app-button app-button-primary" href="{{ url_for('register') }}">Start learning free →</a>
+                <a class="app-button" href="{{ url_for('login') }}">Sign in to your workspace</a>
+            </div>
+            <p class="public-note">Private by default. Your learning workspace starts after sign-in.</p>
+            <div class="public-proof" aria-label="Study Pilot capabilities">
+                <span><strong>01</strong> Capture</span>
+                <span><strong>02</strong> Understand</span>
+                <span><strong>03</strong> Practice</span>
+            </div>
+        </div>
+        <div class="public-hero-card" aria-label="Study Pilot workspace preview">
+            <div class="public-card-top"><span class="public-status-dot"></span> Learning system ready</div>
+            <p class="eyebrow">YOUR NEXT BEST STEP</p>
+            <h2>Review one concept. Build real momentum.</h2>
+            <div class="public-progress"><span></span></div>
+            <div class="public-card-stats"><span><strong>Notes</strong><small>clear and bilingual</small></span><span><strong>Quizzes</strong><small>practice with purpose</small></span></div>
+        </div>
+    </section>
+
+    <section class="public-features" aria-labelledby="features-title">
+        <div class="public-section-heading">
+            <p class="eyebrow">ONE FOCUSED WORKSPACE</p>
+            <h2 id="features-title">Everything you need to keep learning after class.</h2>
+        </div>
+        <div class="public-feature-grid">
+            <article class="public-feature-card"><span>✦</span><p class="public-feature-label">UNDERSTAND</p><h3>Make difficult ideas clearer.</h3><p>Turn recordings and study documents into structured notes and clear explanations.</p></article>
+            <article class="public-feature-card"><span>◈</span><p class="public-feature-label">PRACTICE</p><h3>Build confidence by doing.</h3><p>Revisit your lectures with MCQs, fill-in-the-blank, and short-answer quizzes.</p></article>
+            <article class="public-feature-card"><span>↗</span><p class="public-feature-label">PROGRESS</p><h3>Always know what comes next.</h3><p>Use planning, focus tools, analytics, and an AI coach to choose your next step.</p></article>
+        </div>
+    </section>
+
+    <footer class="public-footer">STUDY PILOT · LEARN WITH MOMENTUM</footer>
+</main>
+</body>
+</html>
