@@ -61,7 +61,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv(
     "FLASK_SECRET_KEY",
-    "smart-lecture-ai-development-key-change-before-deployment"
+    "study-pilot-development-key-change-before-deployment"
 )
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -762,7 +762,7 @@ def inject_current_user():
 
 @app.before_request
 def require_login_for_app_pages():
-    public_endpoints = {"login", "register", "static"}
+    public_endpoints = {"home", "login", "register", "static"}
 
     if request.endpoint in public_endpoints:
         return None
@@ -960,8 +960,7 @@ def register():
         username = request.form.get("username", "").strip().lower()
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
-        requested_role = request.form.get("role", "student").strip().lower()
-        contacts_enabled = 1 if request.form.get("contacts_enabled") == "on" else 0
+        contacts_enabled = 1 if request.form.get("contacts_enabled", "on") == "on" else 0
 
         if len(name) < 2:
             return render_template(
@@ -1005,7 +1004,7 @@ def register():
                 email,
                 generate_password_hash(password),
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "teacher" if requested_role == "teacher" and email in TEACHER_EMAILS else "student"
+                "teacher" if email in TEACHER_EMAILS else "student"
             ))
             connection.commit()
             user_id = connection.execute(
@@ -2162,6 +2161,9 @@ def teacher_dashboard():
 
 @app.route("/")
 def home():
+    if get_current_user() is None:
+        return render_template("landing.html")
+
     connection = get_db_connection()
 
     try:
@@ -2555,7 +2557,7 @@ def generate_notes():
 
 
 # =========================================================
-# SMART LECTURE AI AGENT PAGE
+# STUDY PILOT AGENT PAGE
 # =========================================================
 
 @app.route("/agent", methods=["GET", "POST"])
@@ -2615,7 +2617,7 @@ def agent():
                             {
                                 "role": "system",
                                 "content": (
-                                    "You are Smart Lecture AI, a college "
+                                    "You are Study Pilot, a college "
                                     "study assistant. Use these exact sections:\n\n"
                                     "## 1. FROM MY NOTES\n"
                                     "Only information supported by the notes.\n\n"
@@ -2816,7 +2818,7 @@ def dashboard_agent():
 
     if source_mode == "notes":
         system_prompt = """
-You are Smart Lecture AI, a college study assistant.
+You are Study Pilot, a college study assistant.
 
 Answer using ONLY the supplied saved lecture notes.
 Do not use outside knowledge to fill gaps.
@@ -2834,7 +2836,7 @@ Never invent source details.
 
     elif source_mode == "web":
         system_prompt = """
-You are Smart Lecture AI, a college study assistant.
+You are Study Pilot, a college study assistant.
 
 Answer using the supplied Internet search results.
 Do not claim to have read webpages beyond the supplied results.
@@ -2853,7 +2855,7 @@ Say if the evidence is insufficient.
 
     else:
         system_prompt = """
-You are Smart Lecture AI, a college study assistant.
+You are Study Pilot, a college study assistant.
 
 Use both saved lecture notes and Internet search results.
 
@@ -3003,7 +3005,7 @@ def personal_coach():
         "active_minutes": active_minutes,
         "average_score": average_score,
         "pending_tasks": pending_tasks,
-        "privacy": "I use your Smart Lecture AI activity and learning results. I do not read private device content."
+        "privacy": "I use your Study Pilot activity and learning results. I do not read private device content."
     })
 
 

@@ -1,5 +1,5 @@
  /* =========================================
-   SMART LECTURE AI — DARK BLUE THEME
+   STUDY PILOT — DARK BLUE THEME
 ========================================= */
 
 :root {
@@ -2026,4 +2026,96 @@ footer strong {
         transition-duration: .01ms !important;
         animation-duration: .01ms !important;
     }
+}
+
+/* Cohesive app shell refinements */
+.sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    background:
+        radial-gradient(circle at 0 0, rgba(129, 140, 248, .12), transparent 34%),
+        rgba(14, 20, 39, .97);
+}
+
+.workspace {
+    background:
+        radial-gradient(circle at 88% 4%, rgba(103, 232, 249, .055), transparent 23%),
+        transparent;
+}
+
+.content { max-width: 1360px; }
+
+.topbar {
+    padding: 18px 20px;
+    border: 1px solid rgba(148, 163, 184, .12);
+    border-radius: 18px;
+    background: rgba(15, 23, 42, .42);
+    box-shadow: 0 18px 45px rgba(2, 6, 23, .12);
+}
+
+.topbar h1 { font-size: clamp(26px, 3vw, 38px); letter-spacing: -1.4px; }
+.topbar-right { min-width: 0; }
+.topbar-account { padding-left: 12px; }
+
+.hero {
+    position: relative;
+    overflow: hidden;
+    min-height: 250px;
+    padding: 38px 40px;
+    border-radius: 24px;
+    box-shadow: 0 24px 70px rgba(2, 6, 23, .18);
+}
+
+.hero::after {
+    position: absolute;
+    right: -80px;
+    bottom: -100px;
+    width: 280px;
+    height: 280px;
+    border: 1px solid rgba(103, 232, 249, .12);
+    border-radius: 50%;
+    content: "";
+}
+
+.hero-copy,
+.hero-visual { position: relative; z-index: 1; }
+.hero h2 { font-size: clamp(27px, 3.2vw, 42px); letter-spacing: -1.5px; }
+.hero p { max-width: 630px; font-size: 14px; }
+
+.snapshot-heading h2,
+.section-heading h2 { letter-spacing: -.5px; }
+
+.snapshot-stat,
+.dashboard-tool-card,
+.card,
+.study-room,
+.agent-box {
+    border-color: rgba(148, 163, 184, .13);
+    box-shadow: 0 12px 35px rgba(2, 6, 23, .08);
+}
+
+.snapshot-stat:hover,
+.dashboard-tool-card:hover,
+.card:hover {
+    border-color: rgba(129, 140, 248, .36);
+    transform: translateY(-2px);
+}
+
+.snapshot-stat,
+.dashboard-tool-card,
+.card { transition: border-color .2s ease, transform .2s ease, background .2s ease; }
+
+@media (max-width: 900px) {
+    .sidebar { position: static; height: auto; }
+    .topbar { padding: 16px; }
+    .hero { padding: 30px; }
+}
+
+@media (max-width: 650px) {
+    .topbar { background: transparent; border: 0; box-shadow: none; padding: 0; }
+    .topbar-account { width: 100%; justify-content: flex-start; padding-left: 0; }
+    .status-badge { order: 5; width: 100%; justify-content: center; }
+    .hero { min-height: 0; padding: 25px 21px; border-radius: 20px; }
+    .hero h2 { font-size: 28px; }
 }

@@ -1,10 +1,10 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
-<title>Exam Planner | Smart Lecture AI</title></head>
+<title>Exam Planner | Study Pilot</title></head>
 <body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
-<div class="app-frame"><nav class="app-nav"><a class="app-brand" href="{{ url_for('home') }}"><span class="app-brand-mark">📚</span><span><strong>Smart Lecture AI</strong><small>Personal student workspace</small></span></a><div class="app-nav-links"><a href="{{ url_for('home') }}">Dashboard</a><a class="app-button-primary" href="{{ url_for('planner') }}">Exam Planner</a><a href="{{ url_for('settings') }}">⚙ Settings</a></div></nav>
-<header class="page-header"><div><p class="eyebrow">PERSONAL STUDY PLANNER</p><h1>Turn exam pressure into a plan.</h1><p>Set a target and Smart Lecture AI creates a daily schedule around your units and available time.</p></div><a class="app-button app-button-primary" href="{{ url_for('exam_mode') }}">Open Exam Mode</a></header>
+<div class="app-frame"><nav class="app-nav"><a class="app-brand" href="{{ url_for('home') }}"><span class="app-brand-mark">📚</span><span><strong>Study Pilot</strong><small>Personal student workspace</small></span></a><div class="app-nav-links"><a href="{{ url_for('home') }}">Dashboard</a><a class="app-button-primary" href="{{ url_for('planner') }}">Exam Planner</a><a href="{{ url_for('settings') }}">⚙ Settings</a></div></nav>
+<header class="page-header"><div><p class="eyebrow">PERSONAL STUDY PLANNER</p><h1>Turn exam pressure into a plan.</h1><p>Set a target and Study Pilot creates a daily schedule around your units and available time.</p></div><a class="app-button app-button-primary" href="{{ url_for('exam_mode') }}">Open Exam Mode</a></header>
 {% with messages = get_flashed_messages() %}{% if messages %}<div class="app-alert">{% for message in messages %}<div>{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
 {% if error %}<div class="app-alert">{{ error }}</div>{% endif %}
 <main class="planner-grid"><section class="app-panel"><div class="settings-section-heading"><div class="settings-section-icon">◈</div><div><h2>Create an exam plan</h2><p>One focused task is generated for each available day, followed by a final review.</p></div></div>

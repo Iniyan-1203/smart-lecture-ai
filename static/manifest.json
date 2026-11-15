@@ -1,6 +1,6 @@
  {
-  "name": "Smart Lecture AI",
-  "short_name": "Smart Lecture",
+  "name": "Study Pilot",
+  "short_name": "Study Pilot",
   "description": "Your personal AI-powered learning workspace",
   "start_url": "/",
   "scope": "/",

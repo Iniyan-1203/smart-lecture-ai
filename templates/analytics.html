@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
-    <title>Learning analytics | Smart Lecture AI</title>
+    <title>Learning analytics | Study Pilot</title>
 </head>
 <body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
 <div class="app-frame">
     <nav class="app-nav">
-        <a class="app-brand" href="{{ url_for('home') }}">📚 <strong>Smart Lecture AI</strong></a>
+        <a class="app-brand" href="{{ url_for('home') }}">📚 <strong>Study Pilot</strong></a>
         <div class="app-nav-links"><a href="{{ url_for('home') }}">Dashboard</a><a class="app-button-primary" href="{{ url_for('analytics') }}">Analytics</a><a href="{{ url_for('settings') }}">⚙ Settings</a></div>
     </nav>
     <header class="page-header"><p class="eyebrow">YOUR PROGRESS</p><h1>See how your study habit is growing.</h1><p>Private analytics based on your own quizzes, focus time, and planner tasks.</p></header>

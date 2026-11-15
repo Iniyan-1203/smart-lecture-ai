@@ -1,4 +1,4 @@
-const CACHE_NAME = "smart-lecture-ai-v2";
+const CACHE_NAME = "study-pilot-v2";
 const APP_SHELL = [
     "/",
     "/static/css/style.css",
@@ -31,10 +31,10 @@ self.addEventListener("push", (event) => {
     try {
         data = event.data ? event.data.json() : {};
     } catch (error) {
-        data = {title: "Smart Lecture AI", body: event.data ? event.data.text() : "You have a new reminder."};
+        data = {title: "Study Pilot", body: event.data ? event.data.text() : "You have a new reminder."};
     }
     event.waitUntil(
-        self.registration.showNotification(data.title || "Smart Lecture AI", {
+        self.registration.showNotification(data.title || "Study Pilot", {
             body: data.body || "You have a new study reminder.",
             icon: "/static/images/app-icon.png",
             badge: "/static/images/app-icon.png",

@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
-    <title>Teacher classroom | Smart Lecture AI</title>
+    <title>Teacher classroom | Study Pilot</title>
 </head>
 <body data-theme="{{ theme }}">
 <div class="app-frame">
-    <nav class="app-nav"><a class="app-brand" href="{{ url_for('home') }}">📚 <strong>Smart Lecture AI</strong></a><div class="app-nav-links"><a href="{{ url_for('home') }}">Dashboard</a><a class="app-button-primary" href="{{ url_for('teacher_dashboard') }}">Teacher mode</a></div></nav>
+    <nav class="app-nav"><a class="app-brand" href="{{ url_for('home') }}">📚 <strong>Study Pilot</strong></a><div class="app-nav-links"><a href="{{ url_for('home') }}">Dashboard</a><a class="app-button-primary" href="{{ url_for('teacher_dashboard') }}">Teacher mode</a></div></nav>
     <header class="page-header"><p class="eyebrow">CLASSROOM CONTROL</p><h1>Keep your students in the loop.</h1><p>Create private classrooms, share a join code, and send updates only to enrolled students.</p></header>
     {% with messages = get_flashed_messages() %}{% if messages %}<div class="app-alert">{% for message in messages %}<div>{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
     {% if error %}<div class="app-alert">{{ error }}</div>{% endif %}

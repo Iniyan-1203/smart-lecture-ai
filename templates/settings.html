@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0b1020">
-    <meta name="description" content="Manage your Smart Lecture AI student settings">
+    <meta name="description" content="Manage your Study Pilot student settings">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app-pages.css') }}">
-    <title>Settings | Smart Lecture AI</title>
+    <title>Settings | Study Pilot</title>
 </head>
 <body class="{% if left_handed_mode %}left-handed-mode{% endif %}" data-theme="{{ theme }}">
 <div class="app-frame">
     <nav class="app-nav" aria-label="Primary navigation">
         <a class="app-brand" href="{{ url_for('home') }}">
             <span class="app-brand-mark" aria-hidden="true">📚</span>
-            <span><strong>Smart Lecture AI</strong><small>Personal student workspace</small></span>
+            <span><strong>Study Pilot</strong><small>Personal student workspace</small></span>
         </a>
         <div class="app-nav-links">
             <a href="{{ url_for('home') }}">Dashboard</a>
@@ -95,7 +95,7 @@
                     <div class="settings-section-icon">文</div>
                     <div>
                         <h2>Learning preferences</h2>
-                        <p>Choose how Smart Lecture AI should prepare your study material.</p>
+                        <p>Choose how Study Pilot should prepare your study material.</p>
                     </div>
                 </div>
 

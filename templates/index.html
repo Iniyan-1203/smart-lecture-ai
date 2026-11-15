@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0b1020">
-    <meta name="description" content="Smart Lecture AI turns lectures into notes, quizzes, and guided study sessions.">
+    <meta name="description" content="Study Pilot turns lectures into notes, quizzes, and guided study sessions.">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <title>Smart Lecture AI | Learning Workspace</title>
+    <title>Study Pilot | Learning Workspace</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -15,10 +15,10 @@
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
-        <a href="#dashboard" class="brand" aria-label="Smart Lecture AI dashboard">
+        <a href="#dashboard" class="brand" aria-label="Study Pilot dashboard">
             <div class="brand-icon">📚</div>
             <div>
-                <h2>Smart Lecture AI</h2>
+                <h2>Study Pilot</h2>
                 <p>Your intelligent study space</p>
             </div>
         </a>
@@ -86,7 +86,7 @@
             </div>
         </div>
 
-        <div class="sidebar-footer">SMART LECTURE AI · STUDENT WORKSPACE</div>
+        <div class="sidebar-footer">STUDY PILOT · STUDENT WORKSPACE</div>
     </aside>
 
     <!-- MAIN CONTENT -->
@@ -95,7 +95,7 @@
 
             <header class="topbar">
                 <div>
-                    <p class="eyebrow">SMART LECTURE AI / STUDENT HOME</p>
+                    <p class="eyebrow">STUDY PILOT / STUDENT HOME</p>
                     <h1>Learn from every lecture<span style="color:#a5b4fc">.</span></h1>
                     <p>Capture in class, understand in two languages, practice with purpose, and grow with your learning community.</p>
                 </div>
@@ -140,7 +140,7 @@
                         <span class="coach-insight-icon">✦</span>
                         <span><strong>Next best step</strong><small>{{ personal_coach.next_step }}</small></span>
                     </div>
-                    <small class="coach-privacy">Private to your Smart Lecture AI activity.</small>
+                    <small class="coach-privacy">Private to your Study Pilot activity.</small>
                 </div>
                 <div class="personal-coach-chat">
                     <div class="coach-avatar">✧</div>
@@ -166,7 +166,7 @@
                         {% endif %}
                     </h2>
                     <p>
-                        Smart Lecture AI turns classroom recordings and lecture notes into
+                        Study Pilot turns classroom recordings and lecture notes into
                         clear explanations, bilingual revision material, practice quizzes,
                         and small next steps that help you keep moving after a long break.
                     </p>
@@ -187,7 +187,7 @@
                     <h2>Your classroom can keep teaching <span>after class.</span></h2>
                     <p>
                         Connect an ESP32 lecture microphone or use your phone when allowed.
-                        Smart Lecture AI turns speech into Tamil and English notes, then
+                        Study Pilot turns speech into Tamil and English notes, then
                         helps you remember through quizzes, focus tools, and a personal AI guide.
                     </p>
 
@@ -444,7 +444,7 @@
                 <div class="agent-header">
                     <div class="agent-avatar">✧</div>
                     <div>
-                        <h2>Smart Lecture AI Assistant</h2>
+                        <h2>Study Pilot Assistant</h2>
                         <p>Ask questions, clarify difficult concepts, and explore new topics.</p>
                     </div>
                 </div>
@@ -508,7 +508,7 @@
             </section>
 
             <footer>
-                <strong>Smart Lecture AI</strong><br>
+                <strong>Study Pilot</strong><br>
                 Designed to make learning more organized, accessible, and effective.
             </footer>
 
@@ -865,7 +865,7 @@ if ("serviceWorker" in navigator) {
                     timerButton.textContent = "Start 25-minute timer";
                     timerStatus.textContent = "Focus timer complete. Nice work — take a short break.";
                     if ("Notification" in window && Notification.permission === "granted") {
-                        new Notification("Smart Lecture AI", { body: "Your focus timer is complete." });
+                        new Notification("Study Pilot", { body: "Your focus timer is complete." });
                     }
                     fetch("{{ url_for('timer_notification') }}", {
                         method: "POST",

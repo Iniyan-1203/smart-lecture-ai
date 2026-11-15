@@ -1,6 +1,6 @@
-# Smart Lecture AI
+# Study Pilot
 
-Smart Lecture AI is a bilingual learning assistant prototype for school and college students. It is designed around an ESP32 lecture-capture device, while the current software prototype works independently through a Flask web application.
+Study Pilot is a bilingual learning assistant prototype for school and college students. It is designed around an ESP32 lecture-capture device, while the current software prototype works independently through a Flask web application.
 
 ## What the prototype does
 
@@ -81,7 +81,26 @@ Students must grant browser notification permission. Without VAPID keys, the
 in-app notification center and activity tracking still work, but push messages
 cannot be delivered while the app is closed.
 
-The first visit opens the student sign-in page; choose **Create an account** for first-time registration. Use a password of at least 8 characters for the local demo. Set a strong random `FLASK_SECRET_KEY` before any deployment.
+The first visit opens the public Study Pilot landing page. Choose **Create free account** to register or **Sign in** to enter the protected learning workspace. Use a password of at least 8 characters for the local demo. Set a strong random `FLASK_SECRET_KEY` before any deployment.
+
+### Connect a custom domain
+
+Register `learningpoint.live` separately with a domain registrar; domain availability,
+ownership, and pricing are not managed by this repository. After the Render
+service is deployed:
+
+1. Open the service in Render and go to **Settings → Custom Domains**.
+2. Add `learningpoint.live` (and optionally `www.learningpoint.live`).
+3. Render will show the DNS records required for verification. Add those records
+   at the registrar exactly as shown; do not use placeholder values.
+4. Wait for Render to verify the domain and issue its managed TLS certificate.
+5. Set the preferred hostname redirect in Render if both apex and `www` are
+   configured, then verify that both the public landing page and `/login` load
+   over `https://`.
+
+The Render service already sets `COOKIE_SECURE=1`, and the application adds
+Strict-Transport-Security on secure requests. Keep HTTPS enabled for the custom
+domain before inviting users.
 
 ## Demo flow
 
@@ -97,7 +116,7 @@ The first visit opens the student sign-in page; choose **Create an account** for
 
 Set `TEACHER_EMAILS=teacher@example.com` in `.env` before registration to provision approved teacher accounts. Teachers can create private classrooms from `/teacher`, share each six-character join code, and publish announcements to a selected class. Students join from the Exam Planner and see only announcements for classrooms they joined, plus legacy all-student announcements. Student lectures and quiz history are scoped to the signed-in account, while the original demo lecture remains available as read-only starter content.
 
-Registration defaults to Student. Selecting Teacher only creates a teacher account when the email is also listed in `TEACHER_EMAILS`; otherwise it safely remains a student account. Contact discovery is opt-in: supported mobile browsers may open the device contact picker, and only email addresses explicitly selected by the student are checked against classmates who enabled discoverability.
+New registrations use a student account by default; approved teacher accounts are provisioned automatically when the email is listed in `TEACHER_EMAILS`, so signup does not expose an account-type choice. Contact discovery is enabled by default for new accounts, and can be turned off at any time from Settings. Supported mobile browsers may open the device contact picker, and only email addresses explicitly selected by the student are checked against classmates who enabled discoverability.
 
 The current document parser extracts text-based PDF, DOCX, PPTX, TXT, and Markdown files. Scanned PDFs need an OCR worker (for example Tesseract) before they can be converted into notes. The PWA can be packaged for Android with Trusted Web Activity or Capacitor, but a signed APK/AAB, Play Console setup, and Android UsageStats consent are still deployment steps rather than local Flask features.
 

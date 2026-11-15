@@ -92,6 +92,16 @@ class SmartLectureAppTests(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_public_landing_page_and_protected_workspace_boundary(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Study Pilot", response.get_data(as_text=True))
+        self.assertIn("Create free account", response.get_data(as_text=True))
+
+        response = self.client.get("/notes")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/login", response.headers["Location"])
+
     def test_registration_and_username_login(self):
         token = self.csrf_token()
         suffix = uuid4().hex[:8]
@@ -102,11 +112,25 @@ class SmartLectureAppTests(unittest.TestCase):
                 "username": f"student_{suffix}",
                 "email": f"{suffix}@example.com",
                 "password": "password123",
-                "role": "student",
                 "csrf_token": token,
             },
         )
         self.assertEqual(response.status_code, 302)
+        connection = sqlite3.connect(app.DATABASE)
+        role = connection.execute(
+            "SELECT role FROM users WHERE email = ?",
+            (f"{suffix}@example.com",),
+        ).fetchone()[0]
+        contacts_enabled = connection.execute(
+            """
+            SELECT contacts_enabled FROM user_settings
+            WHERE user_id = (SELECT id FROM users WHERE email = ?)
+            """,
+            (f"{suffix}@example.com",),
+        ).fetchone()[0]
+        connection.close()
+        self.assertEqual(role, "student")
+        self.assertEqual(contacts_enabled, 1)
 
         self.client.post("/logout", data={"csrf_token": self.csrf_token()})
         response = self.client.post(
@@ -118,6 +142,12 @@ class SmartLectureAppTests(unittest.TestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
+
+    def test_registration_form_hides_account_type_and_defaults_discoverability(self):
+        page = self.client.get("/register").get_data(as_text=True)
+        self.assertNotIn("Account type", page)
+        self.assertNotIn('name="role"', page)
+        self.assertIn('name="contacts_enabled" type="checkbox" checked', page)
 
     def test_student_sees_only_owned_and_shared_notes(self):
         first_user = self.create_user()
