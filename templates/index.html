@@ -25,7 +25,7 @@
 
         <nav aria-label="Main navigation">
             <div class="nav-label">WORKSPACE</div>
-            <a href="#dashboard" class="nav-link active" data-dashboard-view="overview">
+            <a href="#dashboard" class="nav-link active" data-dashboard-view="overview" aria-current="page">
                 <span class="nav-icon">⌂</span> Dashboard
             </a>
             <a href="#study-room" class="nav-link" data-dashboard-view="study-room">
@@ -700,10 +700,13 @@
         });
 
         navigationLinks.forEach(function (item) {
-            item.classList.toggle(
-                "active",
-                item.dataset.dashboardView === view
-            );
+            const isActive = item.dataset.dashboardView === view;
+            item.classList.toggle("active", isActive);
+            if (isActive) {
+                item.setAttribute("aria-current", "page");
+            } else {
+                item.removeAttribute("aria-current");
+            }
         });
 
         if (updateHash) {
@@ -718,14 +721,22 @@
                 "",
                 hashByView[view] || "#dashboard"
             );
+
+            const target = document.querySelector(hashByView[view] || "#dashboard");
+            if (target) {
+                window.requestAnimationFrame(function () {
+                    target.scrollIntoView({behavior: "smooth", block: "start"});
+                });
+            }
         }
     }
 
     navigationLinks.forEach(function (link) {
         if (!link.dataset.dashboardView) return;
 
-        link.addEventListener("click", function () {
-            showDashboardView(link.dataset.dashboardView, false);
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            showDashboardView(link.dataset.dashboardView, true);
         });
     });
 
@@ -733,7 +744,7 @@
         showDashboardView(viewFromHash(), false);
     });
 
-    showDashboardView(viewFromHash(), false);
+    showDashboardView(viewFromHash(), Boolean(window.location.hash));
 })();
 </script>
 <script>

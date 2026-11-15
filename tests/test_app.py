@@ -102,6 +102,15 @@ class SmartLectureAppTests(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn("/login", response.headers["Location"])
 
+    def test_dashboard_has_left_section_navigation(self):
+        user_id = self.create_user()
+        self.login_session(user_id)
+        page = self.client.get("/").get_data(as_text=True)
+        self.assertIn('data-dashboard-view="study-room"', page)
+        self.assertIn('data-dashboard-view="ai-agent"', page)
+        self.assertIn('data-dashboard-view="quiz"', page)
+        self.assertIn("scrollIntoView", page)
+
     def test_registration_and_username_login(self):
         token = self.csrf_token()
         suffix = uuid4().hex[:8]
