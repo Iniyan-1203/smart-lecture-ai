@@ -24,5 +24,9 @@
         <section class="app-panel"><h2>Consistency</h2><p class="analytics-copy">You have completed <strong>{{ completed_tasks }}</strong> planner task{% if completed_tasks != 1 %}s{% endif %}. Small completed actions are how long-term progress becomes visible.</p>{% if activity %}<p class="form-hint">Last active: {{ activity['last_seen_at'] }}</p>{% endif %}</section>
     </main>
 </div>
-</body>
+    <a class="ai-fab" href="{{ url_for('agent') }}" aria-label="Open Personal AI Assistant" title="Personal AI Assistant">
+        <span class="ai-fab-orbit" aria-hidden="true"></span>
+        <span class="ai-fab-icon" aria-hidden="true">✦</span>
+        <span class="ai-fab-label">Ask AI</span>
+    </a></body>
 </html>

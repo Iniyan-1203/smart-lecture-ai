@@ -20,5 +20,9 @@
         <section class="app-panel"><h2>Recent announcements</h2>{% for item in announcements %}<div class="announcement-row"><strong>{{ item['title'] }}</strong>{% if item['classroom_name'] %}<small>{{ item['classroom_name'] }}</small>{% endif %}<p>{{ item['body'] }}</p><small>{{ item['created_at'] }}</small></div>{% else %}<p class="empty-state">No announcements yet.</p>{% endfor %}</section>
     </main>
 </div>
-</body>
+    <a class="ai-fab" href="{{ url_for('agent') }}" aria-label="Open Personal AI Assistant" title="Personal AI Assistant">
+        <span class="ai-fab-orbit" aria-hidden="true"></span>
+        <span class="ai-fab-icon" aria-hidden="true">✦</span>
+        <span class="ai-fab-label">Ask AI</span>
+    </a></body>
 </html>
