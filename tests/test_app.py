@@ -148,6 +148,8 @@ class SmartLectureAppTests(unittest.TestCase):
         self.assertNotIn("Account type", page)
         self.assertNotIn('name="role"', page)
         self.assertIn('name="contacts_enabled" type="checkbox" checked', page)
+        self.assertIn('name="username" type="text" autocomplete="nickname"', page)
+        self.assertIn('name="email" type="text" autocomplete="email"', page)
 
     def test_student_sees_only_owned_and_shared_notes(self):
         first_user = self.create_user()

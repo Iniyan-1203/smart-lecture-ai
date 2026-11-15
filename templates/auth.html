@@ -40,7 +40,7 @@
                 <input id="name" name="name" type="text" autocomplete="name" placeholder="Your name" required>
             </label>
             <label for="username">Username
-                <input id="username" name="username" type="text" autocomplete="username" pattern="[a-z0-9_]{3,24}" placeholder="e.g. arun_24" required>
+                <input id="username" name="username" type="text" autocomplete="nickname" pattern="[a-z0-9_]{3,24}" placeholder="e.g. arun_24" required>
             </label>
             <label class="auth-check-row" for="contacts_enabled">
                 <input id="contacts_enabled" name="contacts_enabled" type="checkbox" checked>
@@ -48,7 +48,7 @@
             </label>
             {% endif %}
             <label for="email">Email or username
-                <input id="email" name="email" type="text" autocomplete="username" placeholder="student@example.com or arun_24" required>
+                <input id="email" name="email" type="text" autocomplete="{{ 'email' if mode == 'register' else 'username' }}" placeholder="student@example.com or arun_24" required>
             </label>
             <label for="password">Password
                 <input id="password" name="password" type="password" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}" placeholder="At least 8 characters" required>
