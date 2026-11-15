@@ -340,7 +340,7 @@ def initialize_database():
                 language TEXT NOT NULL DEFAULT 'bilingual',
                 notifications_enabled INTEGER NOT NULL DEFAULT 1,
                 focus_reminders_enabled INTEGER NOT NULL DEFAULT 1,
-                theme TEXT NOT NULL DEFAULT 'dark',
+                theme TEXT NOT NULL DEFAULT 'lavender',
                 left_handed_mode INTEGER NOT NULL DEFAULT 0,
                 contacts_enabled INTEGER NOT NULL DEFAULT 0,
                 FOREIGN KEY (user_id) REFERENCES users(id)
@@ -353,7 +353,7 @@ def initialize_database():
         }
         if "theme" not in settings_columns:
             connection.execute(
-                "ALTER TABLE user_settings ADD COLUMN theme TEXT NOT NULL DEFAULT 'dark'"
+                "ALTER TABLE user_settings ADD COLUMN theme TEXT NOT NULL DEFAULT 'lavender'"
             )
         if "left_handed_mode" not in settings_columns:
             connection.execute(
@@ -749,7 +749,7 @@ def inject_current_user():
         "csrf_field": csrf_field,
         "profile_avatar_options": PROFILE_AVATAR_OPTIONS,
         "user_settings": user_settings,
-        "theme": user_settings["theme"] if user_settings else "dark",
+        "theme": user_settings["theme"] if user_settings else "lavender",
         "left_handed_mode": bool(
             user_settings["left_handed_mode"]
         ) if user_settings else False,
@@ -1057,7 +1057,7 @@ def settings():
         contacts_enabled = int(
             request.form.get("contacts_enabled", "0") == "1"
         )
-        theme = request.form.get("theme", "dark")
+        theme = request.form.get("theme", "lavender")
         left_handed_mode = int(
             request.form.get("left_handed_mode", "0") == "1"
         )
@@ -1106,7 +1106,7 @@ def settings():
         if language not in {"english", "tamil", "bilingual"}:
             language = "bilingual"
         if theme not in AVAILABLE_THEMES:
-            theme = "dark"
+            theme = "lavender"
 
         connection = get_db_connection()
 

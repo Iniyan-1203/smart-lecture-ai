@@ -128,9 +128,17 @@ class SmartLectureAppTests(unittest.TestCase):
             """,
             (f"{suffix}@example.com",),
         ).fetchone()[0]
+        theme = connection.execute(
+            """
+            SELECT theme FROM user_settings
+            WHERE user_id = (SELECT id FROM users WHERE email = ?)
+            """,
+            (f"{suffix}@example.com",),
+        ).fetchone()[0]
         connection.close()
         self.assertEqual(role, "student")
         self.assertEqual(contacts_enabled, 1)
+        self.assertEqual(theme, "lavender")
 
         self.client.post("/logout", data={"csrf_token": self.csrf_token()})
         response = self.client.post(
